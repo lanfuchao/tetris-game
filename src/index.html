@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>俄罗斯方块</title>
+</head>
+<body>
+    <div class="game-container">
+        <div class="main-panel">
+            <canvas id="gameCanvas" width="300" height="600"></canvas>
+        </div>
+
+        <div class="side-panel">
+            <!-- 得分和等级 -->
+            <div class="info-box compact">
+                <div class="stat-item">
+                    <span class="stat-label">得分</span>
+                    <span class="stat-value score-display" id="score">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">等级</span>
+                    <span class="stat-value" id="level">1</span>
+                </div>
+            </div>
+
+            <!-- 下一个方块 -->
+            <div class="info-box compact">
+                <h3>下一个</h3>
+                <canvas id="nextCanvas" width="120" height="120"></canvas>
+            </div>
+
+            <!-- 难度选择 -->
+            <div class="info-box compact difficulty-selector">
+                <h3>
+                    难度
+                    <span class="current-difficulty" id="difficultyName">普通</span>
+                </h3>
+                <div class="difficulty-buttons">
+                    <button class="difficulty-btn" data-difficulty="easy" title="简单 - 1.0x分数">简</button>
+                    <button class="difficulty-btn active" data-difficulty="normal" title="普通 - 1.5x分数">普</button>
+                    <button class="difficulty-btn" data-difficulty="hard" title="困难 - 2.0x分数">难</button>
+                </div>
+            </div>
+
+            <!-- 控制按钮 -->
+            <div class="button-container">
+                <button id="startBtn" class="game-btn primary">开始游戏</button>
+                <button id="resetBtn" class="game-btn warning" disabled>重新开始</button>
+                <button id="pauseBtn" class="game-btn secondary" disabled>暂停</button>
+                <button id="helpBtn" class="game-btn secondary">
+                    <span class="help-icon">?</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 帮助弹窗 -->
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>游戏控制</h2>
+                <button class="modal-close" id="closeHelp">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="control-item">
+                    <span class="control-key">←</span>
+                    <span class="control-desc">左移</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-key">→</span>
+                    <span class="control-desc">右移</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-key">↑</span>
+                    <span class="control-desc">旋转</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-key">↓</span>
+                    <span class="control-desc">快速下落（按住）</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-key">空格</span>
+                    <span class="control-desc">瞬间落地</span>
+                </div>
+                <div class="control-item">
+                    <span class="control-key">P</span>
+                    <span class="control-desc">暂停/继续</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <h3>难度说明</h3>
+                <div class="difficulty-info">
+                    <div class="diff-info-item">
+                        <strong>简单</strong> - 速度慢，1.0x分数，适合新手
+                    </div>
+                    <div class="diff-info-item">
+                        <strong>普通</strong> - 速度中等，1.5x分数，标准体验
+                    </div>
+                    <div class="diff-info-item">
+                        <strong>困难</strong> - 速度快，2.0x分数，极限挑战
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏结束弹窗 -->
+    <div class="modal" id="gameOver">
+        <div class="modal-content">
+            <div class="modal-header game-over-header">
+                <h1>游戏结束</h1>
+            </div>
+            <div class="modal-body game-over-body">
+                <div class="final-stats">
+                    <div class="final-stat">
+                        <span class="final-label">难度</span>
+                        <span class="final-value" id="finalDifficulty">普通</span>
+                    </div>
+                    <div class="final-stat highlight">
+                        <span class="final-label">得分</span>
+                        <span class="final-value" id="finalScore">0</span>
+                    </div>
+                    <div class="final-stat">
+                        <span class="final-label">等级</span>
+                        <span class="final-value" id="finalLevel">1</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="restartBtn" class="game-btn primary large">重新开始</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

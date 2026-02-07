@@ -289,6 +289,13 @@ export class TetrisGame {
     }
 
     start(): void {
+        // 先清除旧的 timer，防止多个 interval 叠加
+        if (this.gameInterval) {
+            clearInterval(this.gameInterval);
+            this.gameInterval = null;
+        }
+        this.stopFastDrop();
+
         const currentDifficulty = this.state.difficulty;
         this.state = this.createInitialState();
         this.state.difficulty = currentDifficulty;
@@ -356,12 +363,16 @@ export class TetrisGame {
         this.state.isGameOver = true;
         if (this.gameInterval) {
             clearInterval(this.gameInterval);
+            this.gameInterval = null;
         }
         this.stopFastDrop();
 
+        // 保存当前难度，重置后恢复
+        const currentDifficulty = this.state.difficulty;
+
         // 重置界面
         this.state = this.createInitialState();
-        this.state.difficulty = Difficulty.NORMAL;
+        this.state.difficulty = currentDifficulty;
         this.updateScore();
         this.updateLevel();
         this.updateDifficultyDisplay();
@@ -371,9 +382,10 @@ export class TetrisGame {
         this.startBtn.disabled = false;
         this.resetBtn.disabled = true;
         this.pauseBtn.disabled = true;
+        this.pauseBtn.textContent = '暂停';
         this.difficultyButtons.forEach(btn => {
             btn.disabled = false;
-            if (btn.dataset.difficulty === Difficulty.NORMAL) {
+            if (btn.dataset.difficulty === currentDifficulty) {
                 btn.classList.add('active');
             } else {
                 btn.classList.remove('active');

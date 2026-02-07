@@ -441,7 +441,14 @@ canvas {
     -webkit-user-select: none;
 }
 
-/* 仅在触摸设备上显示 */
+/* 在平板和手机上显示虚拟按键（基于屏幕宽度） */
+@media (max-width: 1024px) {
+    .virtual-controls {
+        display: block;
+    }
+}
+
+/* 也支持触摸设备检测（双重保障） */
 @media (hover: none) and (pointer: coarse) {
     .virtual-controls {
         display: block;

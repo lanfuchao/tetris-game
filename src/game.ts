@@ -297,6 +297,15 @@ export class TetrisGame {
         this.updateLevel();
         this.updateDifficultyDisplay();
 
+        // 更新难度按钮高亮状态
+        this.difficultyButtons.forEach(btn => {
+            if (btn.dataset.difficulty === currentDifficulty) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
         this.state.currentPiece = this.createPiece();
         this.state.nextPiece = this.createPiece();
         this.renderer.drawNextPiece(this.state.nextPiece);
@@ -373,6 +382,7 @@ export class TetrisGame {
     }
 
     private setupEventListeners(): void {
+        // 键盘事件
         document.addEventListener('keydown', (e) => {
             if (this.state.isGameOver) return;
             if (this.state.isPaused && e.key !== 'p' && e.key !== 'P') return;
@@ -412,6 +422,58 @@ export class TetrisGame {
                 this.stopFastDrop();
             }
         });
+
+        // 虚拟按键事件
+        const virtualControls = document.getElementById('virtualControls');
+        if (virtualControls) {
+            // 使用事件委托
+            virtualControls.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const target = (e.target as HTMLElement).closest('.virtual-btn') as HTMLButtonElement;
+                if (!target || this.state.isGameOver || this.state.isPaused) return;
+
+                const action = target.dataset.action;
+                switch (action) {
+                    case 'left':
+                        this.moveLeft();
+                        this.draw();
+                        break;
+                    case 'right':
+                        this.moveRight();
+                        this.draw();
+                        break;
+                    case 'down':
+                        if (!this.state.isDropping) {
+                            this.startFastDrop();
+                        }
+                        break;
+                    case 'rotate':
+                        this.rotate();
+                        this.draw();
+                        break;
+                    case 'drop':
+                        this.hardDrop();
+                        this.draw();
+                        break;
+                }
+            }, { passive: false });
+
+            virtualControls.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                const target = (e.target as HTMLElement).closest('.virtual-btn') as HTMLButtonElement;
+                if (!target) return;
+
+                const action = target.dataset.action;
+                if (action === 'down') {
+                    this.stopFastDrop();
+                }
+            }, { passive: false });
+
+            // 防止长按导致的上下文菜单
+            virtualControls.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+        }
 
         this.startBtn.addEventListener('click', () => this.start());
         this.resetBtn.addEventListener('click', () => this.reset());

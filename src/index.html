@@ -9,6 +9,31 @@
     <div class="game-container">
         <div class="main-panel">
             <canvas id="gameCanvas" width="300" height="600"></canvas>
+
+            <!-- 虚拟按键（仅触摸设备显示） -->
+            <div class="virtual-controls" id="virtualControls">
+                <div class="virtual-row">
+                    <button class="virtual-btn" data-action="rotate">
+                        <span>↻</span>
+                    </button>
+                </div>
+                <div class="virtual-row">
+                    <button class="virtual-btn" data-action="left">
+                        <span>←</span>
+                    </button>
+                    <button class="virtual-btn" data-action="down">
+                        <span>↓</span>
+                    </button>
+                    <button class="virtual-btn" data-action="right">
+                        <span>→</span>
+                    </button>
+                </div>
+                <div class="virtual-row">
+                    <button class="virtual-btn wide" data-action="drop">
+                        <span>快速落地</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="side-panel">

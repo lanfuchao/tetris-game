@@ -18,6 +18,9 @@ export class TetrisGame {
     private audio: AudioManager;
     private gameInterval: number | null = null;
     private dropInterval: number | null = null;
+    private moveLeftInterval: number | null = null;
+    private moveRightInterval: number | null = null;
+    private rotateInterval: number | null = null;
     private gameStartTime: number = 0; // 游戏开始时间
 
     private scoreElement: HTMLElement;
@@ -249,6 +252,84 @@ export class TetrisGame {
         }
     }
 
+    startMoveLeft(): void {
+        if (this.moveLeftInterval || this.state.isPaused || this.state.isGameOver) return;
+
+        this.moveLeft();
+        this.draw();
+
+        // 延迟后开始连续移动
+        setTimeout(() => {
+            if (!this.moveLeftInterval && !this.state.isGameOver && !this.state.isPaused) {
+                this.moveLeftInterval = window.setInterval(() => {
+                    if (!this.state.isPaused && !this.state.isGameOver) {
+                        this.moveLeft();
+                        this.draw();
+                    }
+                }, 100);
+            }
+        }, 200);
+    }
+
+    stopMoveLeft(): void {
+        if (this.moveLeftInterval) {
+            clearInterval(this.moveLeftInterval);
+            this.moveLeftInterval = null;
+        }
+    }
+
+    startMoveRight(): void {
+        if (this.moveRightInterval || this.state.isPaused || this.state.isGameOver) return;
+
+        this.moveRight();
+        this.draw();
+
+        // 延迟后开始连续移动
+        setTimeout(() => {
+            if (!this.moveRightInterval && !this.state.isGameOver && !this.state.isPaused) {
+                this.moveRightInterval = window.setInterval(() => {
+                    if (!this.state.isPaused && !this.state.isGameOver) {
+                        this.moveRight();
+                        this.draw();
+                    }
+                }, 100);
+            }
+        }, 200);
+    }
+
+    stopMoveRight(): void {
+        if (this.moveRightInterval) {
+            clearInterval(this.moveRightInterval);
+            this.moveRightInterval = null;
+        }
+    }
+
+    startRotate(): void {
+        if (this.rotateInterval || this.state.isPaused || this.state.isGameOver) return;
+
+        this.rotate();
+        this.draw();
+
+        // 延迟后开始连续旋转
+        setTimeout(() => {
+            if (!this.rotateInterval && !this.state.isGameOver && !this.state.isPaused) {
+                this.rotateInterval = window.setInterval(() => {
+                    if (!this.state.isPaused && !this.state.isGameOver) {
+                        this.rotate();
+                        this.draw();
+                    }
+                }, 150);
+            }
+        }, 300);
+    }
+
+    stopRotate(): void {
+        if (this.rotateInterval) {
+            clearInterval(this.rotateInterval);
+            this.rotateInterval = null;
+        }
+    }
+
     private updateScore(): void {
         this.scoreElement.textContent = this.state.score.toString();
     }
@@ -299,6 +380,9 @@ export class TetrisGame {
             this.gameInterval = null;
         }
         this.stopFastDrop();
+        this.stopMoveLeft();
+        this.stopMoveRight();
+        this.stopRotate();
 
         const currentDifficulty = this.state.difficulty;
         this.state = this.createInitialState();
@@ -437,6 +521,9 @@ export class TetrisGame {
             this.gameInterval = null;
         }
         this.stopFastDrop();
+        this.stopMoveLeft();
+        this.stopMoveRight();
+        this.stopRotate();
 
         // 保存当前难度，重置后恢复
         const currentDifficulty = this.state.difficulty;
@@ -464,19 +551,20 @@ export class TetrisGame {
     }
 
     private setupEventListeners(): void {
-        // 键盘事件
+        // 键盘事件 - keydown 支持长按
         document.addEventListener('keydown', (e) => {
             if (this.state.isGameOver) return;
             if (this.state.isPaused && e.key !== 'p' && e.key !== 'P') return;
 
+            // 防止重复触发（已经在长按中）
+            if (e.repeat) return;
+
             switch (e.key) {
                 case 'ArrowLeft':
-                    this.moveLeft();
-                    this.draw();
+                    this.startMoveLeft();
                     break;
                 case 'ArrowRight':
-                    this.moveRight();
-                    this.draw();
+                    this.startMoveRight();
                     break;
                 case 'ArrowDown':
                     if (!this.state.isDropping) {
@@ -484,8 +572,7 @@ export class TetrisGame {
                     }
                     break;
                 case 'ArrowUp':
-                    this.rotate();
-                    this.draw();
+                    this.startRotate();
                     break;
                 case ' ':
                     e.preventDefault();
@@ -499,13 +586,25 @@ export class TetrisGame {
             }
         });
 
+        // 键盘事件 - keyup 停止长按
         document.addEventListener('keyup', (e) => {
-            if (e.key === 'ArrowDown') {
-                this.stopFastDrop();
+            switch (e.key) {
+                case 'ArrowLeft':
+                    this.stopMoveLeft();
+                    break;
+                case 'ArrowRight':
+                    this.stopMoveRight();
+                    break;
+                case 'ArrowDown':
+                    this.stopFastDrop();
+                    break;
+                case 'ArrowUp':
+                    this.stopRotate();
+                    break;
             }
         });
 
-        // 虚拟按键事件
+        // 虚拟按键事件 - 支持长按
         const virtualControls = document.getElementById('virtualControls');
         if (virtualControls) {
             // 使用事件委托
@@ -517,12 +616,10 @@ export class TetrisGame {
                 const action = target.dataset.action;
                 switch (action) {
                     case 'left':
-                        this.moveLeft();
-                        this.draw();
+                        this.startMoveLeft();
                         break;
                     case 'right':
-                        this.moveRight();
-                        this.draw();
+                        this.startMoveRight();
                         break;
                     case 'down':
                         if (!this.state.isDropping) {
@@ -530,8 +627,7 @@ export class TetrisGame {
                         }
                         break;
                     case 'rotate':
-                        this.rotate();
-                        this.draw();
+                        this.startRotate();
                         break;
                     case 'drop':
                         this.hardDrop();
@@ -546,8 +642,19 @@ export class TetrisGame {
                 if (!target) return;
 
                 const action = target.dataset.action;
-                if (action === 'down') {
-                    this.stopFastDrop();
+                switch (action) {
+                    case 'left':
+                        this.stopMoveLeft();
+                        break;
+                    case 'right':
+                        this.stopMoveRight();
+                        break;
+                    case 'down':
+                        this.stopFastDrop();
+                        break;
+                    case 'rotate':
+                        this.stopRotate();
+                        break;
                 }
             }, { passive: false });
 

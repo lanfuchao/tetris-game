@@ -63,16 +63,70 @@ export function getDifficultyConfig(difficulty: Difficulty): DifficultyConfig {
 }
 
 /**
- * 计算升级所需分数
+ * 计算升级所需分数（非线性）
+ * 使用指数增长：每升一级所需分数按 1.15 倍增长
+ * 例如：1级->2级需要1000分，2级->3级需要1150分，3级->4级需要1322分...
  */
 export function getNextLevelScore(difficulty: Difficulty, currentLevel: number): number {
-    return currentLevel * DIFFICULTY_CONFIGS[difficulty].levelUpThreshold;
+    const baseThreshold = DIFFICULTY_CONFIGS[difficulty].levelUpThreshold;
+    // 计算从 1 级到目标等级所需的累计分数
+    let totalScore = 0;
+    for (let i = 1; i < currentLevel; i++) {
+        totalScore += Math.floor(baseThreshold * Math.pow(1.15, i - 1));
+    }
+    return totalScore;
 }
 
 /**
- * 根据分数计算当前等级
+ * 根据分数计算当前等级（非线性）
+ * 使用指数增长模型，前期升级快，后期升级慢
+ * 每升一级所需分数增加 15%
  */
 export function calculateLevel(difficulty: Difficulty, score: number): number {
-    const threshold = DIFFICULTY_CONFIGS[difficulty].levelUpThreshold;
-    return Math.floor(score / threshold) + 1;
+    const baseThreshold = DIFFICULTY_CONFIGS[difficulty].levelUpThreshold;
+    let level = 1;
+    let accumulatedScore = 0;
+
+    // 迭代计算当前分数对应的等级
+    while (true) {
+        const scoreNeeded = Math.floor(baseThreshold * Math.pow(1.15, level - 1));
+        if (accumulatedScore + scoreNeeded > score) {
+            break;
+        }
+        accumulatedScore += scoreNeeded;
+        level++;
+
+        // 防止无限循环（设置最大等级为 50）
+        if (level >= 50) {
+            break;
+        }
+    }
+
+    return level;
+}
+
+/**
+ * 获取当前等级的升级进度信息
+ * 返回：当前等级起始分数、下一等级所需分数、升级进度百分比
+ */
+export function getLevelProgress(difficulty: Difficulty, score: number): {
+    currentLevel: number;
+    currentLevelScore: number;
+    nextLevelScore: number;
+    progressPercent: number;
+} {
+    const currentLevel = calculateLevel(difficulty, score);
+    const currentLevelScore = getNextLevelScore(difficulty, currentLevel);
+    const nextLevelScore = getNextLevelScore(difficulty, currentLevel + 1);
+
+    const scoreInLevel = score - currentLevelScore;
+    const scoreNeeded = nextLevelScore - currentLevelScore;
+    const progressPercent = Math.min(100, Math.floor((scoreInLevel / scoreNeeded) * 100));
+
+    return {
+        currentLevel,
+        currentLevelScore,
+        nextLevelScore,
+        progressPercent
+    };
 }

@@ -21,6 +21,9 @@ export class TetrisGame {
     private moveLeftInterval: number | null = null;
     private moveRightInterval: number | null = null;
     private rotateInterval: number | null = null;
+    private moveLeftTimeout: number | null = null;
+    private moveRightTimeout: number | null = null;
+    private rotateTimeout: number | null = null;
     private gameStartTime: number = 0; // 游戏开始时间
 
     private scoreElement: HTMLElement;
@@ -255,12 +258,13 @@ export class TetrisGame {
     startMoveLeft(): void {
         if (this.moveLeftInterval || this.state.isPaused || this.state.isGameOver) return;
 
+        // 立即执行一次
         this.moveLeft();
         this.draw();
 
         // 延迟后开始连续移动
-        setTimeout(() => {
-            if (!this.moveLeftInterval && !this.state.isGameOver && !this.state.isPaused) {
+        this.moveLeftTimeout = window.setTimeout(() => {
+            if (!this.state.isGameOver && !this.state.isPaused) {
                 this.moveLeftInterval = window.setInterval(() => {
                     if (!this.state.isPaused && !this.state.isGameOver) {
                         this.moveLeft();
@@ -272,6 +276,10 @@ export class TetrisGame {
     }
 
     stopMoveLeft(): void {
+        if (this.moveLeftTimeout) {
+            clearTimeout(this.moveLeftTimeout);
+            this.moveLeftTimeout = null;
+        }
         if (this.moveLeftInterval) {
             clearInterval(this.moveLeftInterval);
             this.moveLeftInterval = null;
@@ -281,12 +289,13 @@ export class TetrisGame {
     startMoveRight(): void {
         if (this.moveRightInterval || this.state.isPaused || this.state.isGameOver) return;
 
+        // 立即执行一次
         this.moveRight();
         this.draw();
 
         // 延迟后开始连续移动
-        setTimeout(() => {
-            if (!this.moveRightInterval && !this.state.isGameOver && !this.state.isPaused) {
+        this.moveRightTimeout = window.setTimeout(() => {
+            if (!this.state.isGameOver && !this.state.isPaused) {
                 this.moveRightInterval = window.setInterval(() => {
                     if (!this.state.isPaused && !this.state.isGameOver) {
                         this.moveRight();
@@ -298,6 +307,10 @@ export class TetrisGame {
     }
 
     stopMoveRight(): void {
+        if (this.moveRightTimeout) {
+            clearTimeout(this.moveRightTimeout);
+            this.moveRightTimeout = null;
+        }
         if (this.moveRightInterval) {
             clearInterval(this.moveRightInterval);
             this.moveRightInterval = null;
@@ -307,12 +320,13 @@ export class TetrisGame {
     startRotate(): void {
         if (this.rotateInterval || this.state.isPaused || this.state.isGameOver) return;
 
+        // 立即执行一次
         this.rotate();
         this.draw();
 
         // 延迟后开始连续旋转
-        setTimeout(() => {
-            if (!this.rotateInterval && !this.state.isGameOver && !this.state.isPaused) {
+        this.rotateTimeout = window.setTimeout(() => {
+            if (!this.state.isGameOver && !this.state.isPaused) {
                 this.rotateInterval = window.setInterval(() => {
                     if (!this.state.isPaused && !this.state.isGameOver) {
                         this.rotate();
@@ -324,6 +338,10 @@ export class TetrisGame {
     }
 
     stopRotate(): void {
+        if (this.rotateTimeout) {
+            clearTimeout(this.rotateTimeout);
+            this.rotateTimeout = null;
+        }
         if (this.rotateInterval) {
             clearInterval(this.rotateInterval);
             this.rotateInterval = null;

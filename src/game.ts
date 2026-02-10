@@ -3,6 +3,14 @@ import { Piece, GameState, Difficulty } from './types';
 import { AudioManager } from './utils/audio';
 import { Renderer } from './utils/renderer';
 import { getSpeed, getDifficultyConfig, calculateLevel } from './difficulty';
+import {
+    saveGameRecord,
+    getGameRecords,
+    getVictoryCount,
+    clearGameRecords,
+    formatDuration,
+    formatTimestamp
+} from './utils/records';
 
 export class TetrisGame {
     private state: GameState;
@@ -10,6 +18,7 @@ export class TetrisGame {
     private audio: AudioManager;
     private gameInterval: number | null = null;
     private dropInterval: number | null = null;
+    private gameStartTime: number = 0; // 游戏开始时间
 
     private scoreElement: HTMLElement;
     private levelElement: HTMLElement;
@@ -57,7 +66,8 @@ export class TetrisGame {
             isPaused: false,
             isGameOver: false,
             isDropping: false,
-            difficulty: Difficulty.NORMAL
+            difficulty: Difficulty.NORMAL,
+            isVictory: false
         };
     }
 
@@ -135,6 +145,11 @@ export class TetrisGame {
             if (newLevel !== this.state.level) {
                 this.state.level = newLevel;
                 this.updateLevel();
+
+                // 检查是否达到 50 级（通关）
+                if (this.state.level >= 50) {
+                    this.victory();
+                }
             }
         }
     }
@@ -329,6 +344,9 @@ export class TetrisGame {
         const speed = getSpeed(this.state.difficulty, this.state.level);
         this.gameInterval = window.setInterval(() => this.gameLoop(), speed);
 
+        // 记录游戏开始时间
+        this.gameStartTime = Date.now();
+
         this.draw();
     }
 
@@ -349,6 +367,54 @@ export class TetrisGame {
         this.finalDifficultyElement.textContent = config.name;
         this.finalScoreElement.textContent = this.state.score.toString();
         this.finalLevelElement.textContent = this.state.level.toString();
+
+        // 显示失败信息
+        const gameOverTitle = document.getElementById('gameOverTitle')!;
+        gameOverTitle.textContent = '游戏结束';
+        gameOverTitle.style.color = '#ff4757';
+
+        this.showModal('gameOver');
+        this.startBtn.disabled = false;
+        this.resetBtn.disabled = true;
+        this.pauseBtn.disabled = true;
+
+        // 重新启用难度选择按钮
+        this.difficultyButtons.forEach(btn => btn.disabled = false);
+
+        // 游戏失败不保存记录
+    }
+
+    private victory(): void {
+        this.state.isGameOver = true;
+        this.state.isVictory = true;
+
+        if (this.gameInterval) {
+            clearInterval(this.gameInterval);
+        }
+        this.stopFastDrop();
+
+        // 计算游戏时长
+        const duration = Math.floor((Date.now() - this.gameStartTime) / 1000);
+
+        // 保存游戏记录（通关）
+        saveGameRecord({
+            difficulty: this.state.difficulty,
+            score: this.state.score,
+            level: this.state.level,
+            isVictory: true,
+            duration
+        });
+
+        const config = getDifficultyConfig(this.state.difficulty);
+        this.finalDifficultyElement.textContent = config.name;
+        this.finalScoreElement.textContent = this.state.score.toString();
+        this.finalLevelElement.textContent = this.state.level.toString();
+
+        // 显示通关信息
+        const gameOverTitle = document.getElementById('gameOverTitle')!;
+        gameOverTitle.textContent = '🎉 恭喜通关！';
+        gameOverTitle.style.color = '#ffd700';
+
         this.showModal('gameOver');
         this.startBtn.disabled = false;
         this.resetBtn.disabled = true;
@@ -512,6 +578,21 @@ export class TetrisGame {
             this.closeModal('helpModal');
         });
 
+        // 记录按钮事件
+        document.getElementById('recordsBtn')!.addEventListener('click', () => {
+            this.showRecordsModal();
+        });
+
+        document.getElementById('closeRecords')!.addEventListener('click', () => {
+            this.closeModal('recordsModal');
+        });
+
+        document.getElementById('clearRecordsBtn')!.addEventListener('click', () => {
+            if (confirm('确定要清空所有游戏记录吗？')) {
+                this.clearRecords();
+            }
+        });
+
         // 点击模态框外部关闭
         document.querySelectorAll('.modal').forEach(modal => {
             modal.addEventListener('click', (e) => {
@@ -534,5 +615,85 @@ export class TetrisGame {
         if (modal) {
             modal.classList.remove('show');
         }
+    }
+
+    private showRecordsModal(): void {
+        this.renderRecords('all');
+        this.showModal('recordsModal');
+
+        // 设置标签页点击事件
+        document.querySelectorAll('.records-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const target = e.target as HTMLButtonElement;
+                const difficulty = target.dataset.difficulty as Difficulty | 'all';
+
+                // 更新激活状态
+                document.querySelectorAll('.records-tab').forEach(t => t.classList.remove('active'));
+                target.classList.add('active');
+
+                // 渲染对应难度的记录
+                this.renderRecords(difficulty);
+            });
+        });
+    }
+
+    private renderRecords(filterDifficulty: Difficulty | 'all'): void {
+        const records = getGameRecords();
+        const filteredRecords = filterDifficulty === 'all'
+            ? records
+            : records.filter(r => r.difficulty === filterDifficulty);
+
+        const recordsList = document.getElementById('recordsList')!;
+        const victoryCountElement = document.getElementById('victoryCount')!;
+
+        // 更新通关次数
+        const victoryCount = filterDifficulty === 'all'
+            ? getVictoryCount()
+            : getVictoryCount(filterDifficulty);
+        victoryCountElement.textContent = victoryCount.toString();
+
+        // 渲染记录列表
+        if (filteredRecords.length === 0) {
+            recordsList.innerHTML = '<div class="empty-records">暂无游戏记录</div>';
+            return;
+        }
+
+        recordsList.innerHTML = filteredRecords.map(record => {
+            const config = getDifficultyConfig(record.difficulty);
+            const statusClass = record.isVictory ? 'victory' : 'defeat';
+            const statusText = record.isVictory ? '🎉 通关' : '❌ 失败';
+
+            return `
+                <div class="record-item ${statusClass}">
+                    <div class="record-header">
+                        <span class="record-status ${statusClass}">${statusText}</span>
+                        <span class="record-time">${formatTimestamp(record.timestamp)}</span>
+                    </div>
+                    <div class="record-details">
+                        <div class="record-detail">
+                            <span class="record-detail-label">难度</span>
+                            <span class="record-detail-value">${config.name}</span>
+                        </div>
+                        <div class="record-detail">
+                            <span class="record-detail-label">分数</span>
+                            <span class="record-detail-value">${record.score}</span>
+                        </div>
+                        <div class="record-detail">
+                            <span class="record-detail-label">等级</span>
+                            <span class="record-detail-value">${record.level}</span>
+                        </div>
+                        <div class="record-detail">
+                            <span class="record-detail-label">时长</span>
+                            <span class="record-detail-value">${formatDuration(record.duration)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    private clearRecords(): void {
+        clearGameRecords();
+        this.renderRecords('all');
     }
 }

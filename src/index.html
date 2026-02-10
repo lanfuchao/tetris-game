@@ -73,6 +73,9 @@
                 <button id="startBtn" class="game-btn primary">开始游戏</button>
                 <button id="resetBtn" class="game-btn warning" disabled>重新开始</button>
                 <button id="pauseBtn" class="game-btn secondary" disabled>暂停</button>
+                <button id="recordsBtn" class="game-btn secondary">
+                    <span class="help-icon">📊</span>
+                </button>
                 <button id="helpBtn" class="game-btn secondary">
                     <span class="help-icon">?</span>
                 </button>
@@ -134,7 +137,7 @@
     <div class="modal" id="gameOver">
         <div class="modal-content">
             <div class="modal-header game-over-header">
-                <h1>游戏结束</h1>
+                <h1 id="gameOverTitle">游戏结束</h1>
             </div>
             <div class="modal-body game-over-body">
                 <div class="final-stats">
@@ -154,6 +157,36 @@
             </div>
             <div class="modal-footer">
                 <button id="restartBtn" class="game-btn primary large">重新开始</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏记录弹窗 -->
+    <div class="modal" id="recordsModal">
+        <div class="modal-content records-modal">
+            <div class="modal-header">
+                <h2>游戏记录</h2>
+                <button class="modal-close" id="closeRecords">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="records-stats">
+                    <div class="record-stat-item">
+                        <span class="record-stat-label">通关次数</span>
+                        <span class="record-stat-value" id="victoryCount">0</span>
+                    </div>
+                </div>
+                <div class="records-tabs">
+                    <button class="records-tab active" data-difficulty="all">全部</button>
+                    <button class="records-tab" data-difficulty="easy">简单</button>
+                    <button class="records-tab" data-difficulty="normal">普通</button>
+                    <button class="records-tab" data-difficulty="hard">困难</button>
+                </div>
+                <div class="records-list" id="recordsList">
+                    <div class="empty-records">暂无游戏记录</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="clearRecordsBtn" class="game-btn warning">清空记录</button>
             </div>
         </div>
     </div>

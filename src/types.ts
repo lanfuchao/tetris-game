@@ -20,6 +20,17 @@ export interface GameState {
     isGameOver: boolean;
     isDropping: boolean;
     difficulty: Difficulty;
+    isVictory: boolean; // 是否通关（50级）
+}
+
+export interface GameRecord {
+    id: string;
+    difficulty: Difficulty;
+    score: number;
+    level: number;
+    isVictory: boolean; // 是否通关
+    timestamp: number; // 时间戳
+    duration: number; // 游戏时长（秒）
 }
 
 export type Shape = number[][];

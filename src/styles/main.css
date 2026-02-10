@@ -793,3 +793,152 @@ canvas {
 .modal-content::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.5);
 }
+
+/* 游戏记录样式 */
+.records-modal .modal-content {
+    max-width: 600px;
+    max-height: 80vh;
+}
+
+.records-stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.record-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.record-stat-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.record-stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.records-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+}
+
+.records-tab {
+    flex: 1;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.records-tab:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.records-tab.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.records-list {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.record-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid;
+    transition: all 0.3s;
+}
+
+.record-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.record-item.victory {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.record-item.defeat {
+    border-color: #ff4757;
+}
+
+.record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.record-status {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.record-status.victory {
+    color: #ffd700;
+}
+
+.record-status.defeat {
+    color: #ff4757;
+}
+
+.record-time {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.record-details {
+    display: flex;
+    gap: 20px;
+    font-size: 13px;
+}
+
+.record-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.record-detail-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 11px;
+}
+
+.record-detail-value {
+    color: #fff;
+    font-weight: bold;
+}
+
+.empty-records {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+}

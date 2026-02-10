@@ -100,9 +100,15 @@ export class TetrisGame {
                         const newX = piece.x + col + offsetX;
                         const newY = piece.y + row + offsetY;
 
-                        // 检查左右边界
-                        if (newX < 0 || newX >= CONFIG.cols) {
-                            return true;
+                        // 检查左右边界（只在水平移动时）
+                        if (offsetX !== 0) {
+                            if (newX < 0 || newX >= CONFIG.cols) {
+                                return true;
+                            }
+                            // 水平移动时也要检查目标位置
+                            if (newY >= 0 && newY < CONFIG.rows && this.state.board[newY][newX]) {
+                                return true;
+                            }
                         }
 
                         // 检查底部边界
@@ -110,14 +116,16 @@ export class TetrisGame {
                             return true;
                         }
 
-                        // 检查下方一格是否有方块（停止穿透）
-                        if (newY >= 0 && newY + 1 < CONFIG.rows && this.state.board[newY + 1][newX]) {
-                            return true;
-                        }
-
-                        // 检查是否到达底部
-                        if (newY === CONFIG.rows - 1) {
-                            return true;
+                        // 向下移动时，只检查下方一格是否有方块
+                        if (offsetY !== 0) {
+                            // 如果到达底部，停止
+                            if (newY >= CONFIG.rows - 1) {
+                                return true;
+                            }
+                            // 如果下方有方块，停止
+                            if (newY >= 0 && this.state.board[newY + 1] && this.state.board[newY + 1][newX]) {
+                                return true;
+                            }
                         }
                     }
                 }

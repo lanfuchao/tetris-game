@@ -10,7 +10,14 @@ export class Renderer {
         this.nextCtx = nextCanvas.getContext('2d')!;
     }
 
-    drawBlock(ctx: CanvasRenderingContext2D, x: number, y: number, color: string): void {
+    drawBlock(ctx: CanvasRenderingContext2D, x: number, y: number, color: string, isSpecial: boolean = false): void {
+        // 特殊方块使用特别的样式
+        if (isSpecial) {
+            this.drawSpecialBlock(ctx, x, y, color);
+            return;
+        }
+
+        // 普通方块的绘制逻辑
         const blockX = x * CONFIG.blockSize;
         const blockY = y * CONFIG.blockSize;
         const size = CONFIG.blockSize;
@@ -167,7 +174,8 @@ export class Renderer {
                         ctx,
                         piece.x + col + offsetX,
                         piece.y + row + offsetY,
-                        CONFIG.colors[piece.type]!
+                        CONFIG.colors[piece.type]!,
+                        piece.isSpecial || false
                     );
                 }
             }
@@ -207,11 +215,132 @@ export class Renderer {
                             this.nextCtx,
                             col + offsetX,
                             row + offsetY,
-                            CONFIG.colors[nextPiece.type]!
+                            CONFIG.colors[nextPiece.type]!,
+                            nextPiece.isSpecial || false
                         );
                     }
                 }
             }
         }
+    }
+
+    // 绘制特殊水晶方块
+    private drawSpecialBlock(ctx: CanvasRenderingContext2D, x: number, y: number, color: string): void {
+        const blockX = x * CONFIG.blockSize;
+        const blockY = y * CONFIG.blockSize;
+        const size = CONFIG.blockSize;
+        const centerX = blockX + size / 2;
+        const centerY = blockY + size / 2;
+
+        ctx.save();
+
+        // 1. 强烈的外发光（多层光晕）
+        for (let i = 3; i > 0; i--) {
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 20 * i;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+
+            const glowGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, size * 0.6);
+            glowGradient.addColorStop(0, color);
+            glowGradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+
+            ctx.fillStyle = glowGradient;
+            ctx.fillRect(blockX, blockY, size, size);
+        }
+
+        ctx.shadowBlur = 0;
+
+        // 2. 钻石形状主体
+        ctx.beginPath();
+        ctx.moveTo(centerX, blockY + 3);           // 顶部
+        ctx.lineTo(blockX + size - 3, centerY);    // 右侧
+        ctx.lineTo(centerX, blockY + size - 3);    // 底部
+        ctx.lineTo(blockX + 3, centerY);           // 左侧
+        ctx.closePath();
+
+        // 3. 钻石渐变填充
+        const diamondGradient = ctx.createRadialGradient(
+            centerX - size * 0.2,
+            centerY - size * 0.2,
+            0,
+            centerX,
+            centerY,
+            size * 0.6
+        );
+        diamondGradient.addColorStop(0, '#FFFFFF');
+        diamondGradient.addColorStop(0.3, '#FFED4E');
+        diamondGradient.addColorStop(0.7, '#FFD700');
+        diamondGradient.addColorStop(1, '#FFA500');
+
+        ctx.fillStyle = diamondGradient;
+        ctx.fill();
+
+        // 4. 钻石边框
+        ctx.strokeStyle = '#FF8C00';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // 5. 内部高光线
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(centerX - size * 0.15, blockY + size * 0.3);
+        ctx.lineTo(centerX - size * 0.15, blockY + size * 0.5);
+        ctx.stroke();
+
+        // 6. 顶部亮点
+        const highlightGradient = ctx.createRadialGradient(
+            centerX,
+            blockY + size * 0.25,
+            0,
+            centerX,
+            blockY + size * 0.25,
+            size * 0.2
+        );
+        highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+        highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+        ctx.fillStyle = highlightGradient;
+        ctx.beginPath();
+        ctx.arc(centerX, blockY + size * 0.25, size * 0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 7. 底部反光
+        const reflectionGradient = ctx.createLinearGradient(
+            centerX,
+            blockY + size * 0.7,
+            centerX,
+            blockY + size - 3
+        );
+        reflectionGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+        reflectionGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+        ctx.fillStyle = reflectionGradient;
+        ctx.beginPath();
+        ctx.moveTo(centerX, blockY + size * 0.7);
+        ctx.lineTo(blockX + size * 0.7, blockY + size - 3);
+        ctx.lineTo(blockX + size * 0.3, blockY + size - 3);
+        ctx.closePath();
+        ctx.fill();
+
+        // 8. 星光效果
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.lineWidth = 1.5;
+        const sparkleSize = size * 0.15;
+
+        // 横向星光
+        ctx.beginPath();
+        ctx.moveTo(centerX - sparkleSize, centerY);
+        ctx.lineTo(centerX + sparkleSize, centerY);
+        ctx.stroke();
+
+        // 纵向星光
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY - sparkleSize);
+        ctx.lineTo(centerX, centerY + sparkleSize);
+        ctx.stroke();
+
+        ctx.restore();
     }
 }

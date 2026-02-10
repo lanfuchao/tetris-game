@@ -517,7 +517,7 @@ export class TetrisGame {
             // 使用事件委托
             virtualControls.addEventListener('touchstart', (e) => {
                 e.preventDefault();
-                const target = (e.target as HTMLElement).closest('.virtual-btn') as HTMLButtonElement;
+                const target = (e.target as HTMLElement).closest('.virtual-btn-compact') as HTMLButtonElement;
                 if (!target || this.state.isGameOver || this.state.isPaused) return;
 
                 const action = target.dataset.action;
@@ -548,7 +548,7 @@ export class TetrisGame {
 
             virtualControls.addEventListener('touchend', (e) => {
                 e.preventDefault();
-                const target = (e.target as HTMLElement).closest('.virtual-btn') as HTMLButtonElement;
+                const target = (e.target as HTMLElement).closest('.virtual-btn-compact') as HTMLButtonElement;
                 if (!target) return;
 
                 const action = target.dataset.action;

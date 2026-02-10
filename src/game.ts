@@ -2,7 +2,7 @@ import { CONFIG } from './config';
 import { Piece, GameState, Difficulty } from './types';
 import { AudioManager } from './utils/audio';
 import { Renderer } from './utils/renderer';
-import { getSpeed, getDifficultyConfig, calculateLevel } from './difficulty';
+import { getSpeed, getDifficultyConfig, calculateLevel, DIFFICULTY_CONFIGS } from './difficulty';
 import {
     saveGameRecord,
     getGameRecords,
@@ -76,8 +76,8 @@ export class TetrisGame {
     }
 
     private createPiece(): Piece {
-        // 10% 概率生成特殊单格方块（type 8）
-        const isSpecialPiece = Math.random() < 0.1;
+        let specialProbability = DIFFICULTY_CONFIGS[this.state.difficulty].specialProbability;
+        const isSpecialPiece = Math.random() < specialProbability;
         const type = isSpecialPiece ? 8 : Math.floor(Math.random() * 7) + 1;
         const shape = CONFIG.shapes[type];
 
@@ -92,7 +92,7 @@ export class TetrisGame {
     private collision(piece: Piece, offsetX: number = 0, offsetY: number = 0): boolean {
         const shape = CONFIG.shapes[piece.type];
 
-        // 特殊方块的碰撞检测：只检测边界和下方是否有空位
+        // 特殊方块的碰撞检测：可以穿透其他方块
         if (piece.isSpecial) {
             for (let row = 0; row < shape.length; row++) {
                 for (let col = 0; col < shape[row].length; col++) {
@@ -100,15 +100,9 @@ export class TetrisGame {
                         const newX = piece.x + col + offsetX;
                         const newY = piece.y + row + offsetY;
 
-                        // 检查左右边界（只在水平移动时）
-                        if (offsetX !== 0) {
-                            if (newX < 0 || newX >= CONFIG.cols) {
-                                return true;
-                            }
-                            // 水平移动时也要检查目标位置
-                            if (newY >= 0 && newY < CONFIG.rows && this.state.board[newY][newX]) {
-                                return true;
-                            }
+                        // 检查左右边界
+                        if (newX < 0 || newX >= CONFIG.cols) {
+                            return true;
                         }
 
                         // 检查底部边界
@@ -116,14 +110,32 @@ export class TetrisGame {
                             return true;
                         }
 
-                        // 向下移动时，只检查下方一格是否有方块
-                        if (offsetY !== 0) {
-                            // 如果到达底部，停止
-                            if (newY >= CONFIG.rows - 1) {
+                        // 特殊方块向下移动：穿透其他方块，直到下方没有空格子
+                        if (offsetY > 0) {
+                            // 检查是否到达最底行
+                            if (newY === CONFIG.rows - 1) {
+                                // 到达最底行，停止
                                 return true;
                             }
-                            // 如果下方有方块，停止
-                            if (newY >= 0 && this.state.board[newY + 1] && this.state.board[newY + 1][newX]) {
+                            // 检查从新位置向下是否还有空格子
+                            // 如果下方全是方块（没有空格子了），则停止
+                            let hasEmptyBelow = false;
+                            for (let checkY = newY + 1; checkY < CONFIG.rows; checkY++) {
+                                if (this.state.board[checkY][newX] === 0) {
+                                    hasEmptyBelow = true;
+                                    break;
+                                }
+                            }
+                            // 如果下方没有空格子了，停止
+                            if (!hasEmptyBelow) {
+                                return true;
+                            }
+                            // 否则继续穿透下落
+                        }
+
+                        // 水平移动时仍然检查目标位置（不能穿过墙壁般的方块柱）
+                        if (offsetX !== 0 && offsetY === 0) {
+                            if (newY >= 0 && newY < CONFIG.rows && this.state.board[newY][newX]) {
                                 return true;
                             }
                         }

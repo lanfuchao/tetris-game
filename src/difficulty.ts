@@ -16,7 +16,8 @@ export const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
             return Math.max(200, Math.round(speed));
         },
         scoreMultiplier: 1.0,
-        levelUpThreshold: 1200 // 每 1200 分升一级
+        levelUpThreshold: 1200, // 每 1200 分升一级
+        specialProbability: 0.05 // 5% 概率生成特殊单格方块（type 8）
     },
 
     [Difficulty.NORMAL]: {
@@ -30,7 +31,8 @@ export const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
             return Math.max(120, Math.round(speed));
         },
         scoreMultiplier: 1.5,
-        levelUpThreshold: 1000 // 每 1000 分升一级
+        levelUpThreshold: 1000, // 每 1000 分升一级
+        specialProbability: 0.02 // 2% 概率生成特殊单格方块（type 8）
     },
 
     [Difficulty.HARD]: {
@@ -44,7 +46,8 @@ export const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
             return Math.max(80, Math.round(speed));
         },
         scoreMultiplier: 2.0,
-        levelUpThreshold: 800 // 每 800 分升一级
+        levelUpThreshold: 800, // 每 800 分升一级
+        specialProbability: 0.01 // 1% 概率生成特殊单格方块（type 8）
     }
 };
 

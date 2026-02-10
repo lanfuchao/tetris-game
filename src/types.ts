@@ -51,4 +51,5 @@ export interface DifficultyConfig {
     speedCurve: (level: number) => number;
     scoreMultiplier: number;
     levelUpThreshold: number;
+    specialProbability: number; // 生成特殊单格方块的概率
 }

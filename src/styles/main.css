@@ -269,17 +269,37 @@ canvas {
     font-size: 16px;
 }
 
-/* 得分和控制按钮组合区域 */
-.stats-controls {
+/* 得分和等级（上下排列） */
+.stats-vertical {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
-.stats-row {
+.stat-item-vertical {
     display: flex;
-    gap: 15px;
-    justify-content: space-around;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 控制按钮（纵向排列） */
+.control-buttons-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.game-btn-full {
+    width: 100%;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.5px;
 }
 
 /* 紧凑控制按钮（三个一排） */
@@ -340,6 +360,82 @@ canvas {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none !important;
+}
+
+.game-btn-full.primary {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3);
+}
+
+.game-btn-full.primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(76, 175, 80, 0.4);
+}
+
+.game-btn-full.secondary {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.game-btn-full.secondary:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.game-btn-full.warning {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    box-shadow: 0 3px 8px rgba(255, 152, 0, 0.3);
+}
+
+.game-btn-full.warning:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(255, 152, 0, 0.4);
+}
+
+.game-btn-full:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* 难度切换按钮 */
+.difficulty-toggle {
+    width: 100%;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.difficulty-toggle:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.difficulty-toggle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.difficulty-label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.difficulty-value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
 }
 
 .help-icon {
@@ -719,40 +815,49 @@ canvas {
     .side-panel {
         flex: 1;
         width: auto;
-        gap: 8px;
+        min-width: 120px;
+        max-width: 150px;
+        gap: 6px;
     }
 
     .info-box {
-        padding: 8px;
+        padding: 6px;
     }
 
     .info-box h3 {
-        font-size: 13px;
-        margin-bottom: 6px;
+        font-size: 11px;
+        margin-bottom: 4px;
     }
 
     .stat-label {
-        font-size: 11px;
+        font-size: 9px;
     }
 
     .stat-value {
-        font-size: 16px;
+        font-size: 14px;
     }
 
     canvas#nextCanvas {
-        width: 80px;
-        height: 80px;
+        width: 60px;
+        height: 60px;
     }
 
-    /* 紧凑按钮在手机上更小 */
-    .game-btn-compact {
-        padding: 6px 4px;
+    /* 全宽按钮 */
+    .game-btn-full {
+        padding: 8px 6px;
         font-size: 11px;
     }
 
-    .difficulty-btn {
-        width: 32px;
-        height: 32px;
+    /* 难度切换按钮 */
+    .difficulty-toggle {
+        padding: 8px 6px;
+    }
+
+    .difficulty-label {
+        font-size: 9px;
+    }
+
+    .difficulty-value {
         font-size: 12px;
     }
 

@@ -28,9 +28,8 @@ export class TetrisGame {
     private finalDifficultyElement: HTMLElement;
     private gameOverElement: HTMLElement;
     private startBtn: HTMLButtonElement;
-    private resetBtn: HTMLButtonElement;
     private pauseBtn: HTMLButtonElement;
-    private difficultyButtons: NodeListOf<HTMLButtonElement>;
+    private difficultyToggle: HTMLButtonElement;
 
     constructor() {
         const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
@@ -47,9 +46,8 @@ export class TetrisGame {
         this.finalDifficultyElement = document.getElementById('finalDifficulty')!;
         this.gameOverElement = document.getElementById('gameOver')!;
         this.startBtn = document.getElementById('startBtn') as HTMLButtonElement;
-        this.resetBtn = document.getElementById('resetBtn') as HTMLButtonElement;
         this.pauseBtn = document.getElementById('pauseBtn') as HTMLButtonElement;
-        this.difficultyButtons = document.querySelectorAll('.difficulty-btn');
+        this.difficultyToggle = document.getElementById('difficultyToggle') as HTMLButtonElement;
 
         this.state = this.createInitialState();
         this.setupEventListeners();
@@ -271,22 +269,13 @@ export class TetrisGame {
         this.difficultyNameElement.textContent = config.name;
     }
 
-    setDifficulty(difficulty: Difficulty): void {
-        if (!this.state.isGameOver && this.gameInterval) {
-            // 游戏进行中不允许切换难度
-            return;
-        }
-        this.state.difficulty = difficulty;
+    toggleDifficulty(): void {
+        // 循环切换难度：简单 -> 普通 -> 困难 -> 简单
+        const difficulties = [Difficulty.EASY, Difficulty.NORMAL, Difficulty.HARD];
+        const currentIndex = difficulties.indexOf(this.state.difficulty);
+        const nextIndex = (currentIndex + 1) % difficulties.length;
+        this.state.difficulty = difficulties[nextIndex];
         this.updateDifficultyDisplay();
-
-        // 更新难度按钮状态
-        this.difficultyButtons.forEach(btn => {
-            if (btn.dataset.difficulty === difficulty) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
     }
 
     private gameLoop(): void {
@@ -319,26 +308,20 @@ export class TetrisGame {
         this.updateLevel();
         this.updateDifficultyDisplay();
 
-        // 更新难度按钮高亮状态
-        this.difficultyButtons.forEach(btn => {
-            if (btn.dataset.difficulty === currentDifficulty) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
-
         this.state.currentPiece = this.createPiece();
         this.state.nextPiece = this.createPiece();
         this.renderer.drawNextPiece(this.state.nextPiece);
 
         this.closeModal('gameOver');
-        this.startBtn.disabled = true;
-        this.resetBtn.disabled = false;
+
+        // 开始按钮变为结束按钮
+        this.startBtn.textContent = '结束';
+        this.startBtn.classList.remove('primary');
+        this.startBtn.classList.add('warning');
         this.pauseBtn.disabled = false;
 
         // 禁用难度选择按钮
-        this.difficultyButtons.forEach(btn => btn.disabled = true);
+        this.difficultyToggle.disabled = true;
 
         // 使用新的速度计算
         const speed = getSpeed(this.state.difficulty, this.state.level);
@@ -386,12 +369,15 @@ export class TetrisGame {
         gameOverTitle.style.color = '#ff4757';
 
         this.showModal('gameOver');
-        this.startBtn.disabled = false;
-        this.resetBtn.disabled = true;
+
+        // 恢复开始按钮
+        this.startBtn.textContent = '开始';
+        this.startBtn.classList.remove('warning');
+        this.startBtn.classList.add('primary');
         this.pauseBtn.disabled = true;
 
         // 重新启用难度选择按钮
-        this.difficultyButtons.forEach(btn => btn.disabled = false);
+        this.difficultyToggle.disabled = false;
     }
 
     private victory(): void {
@@ -426,12 +412,15 @@ export class TetrisGame {
         gameOverTitle.style.color = '#ffd700';
 
         this.showModal('gameOver');
-        this.startBtn.disabled = false;
-        this.resetBtn.disabled = true;
+
+        // 恢复开始按钮
+        this.startBtn.textContent = '开始';
+        this.startBtn.classList.remove('warning');
+        this.startBtn.classList.add('primary');
         this.pauseBtn.disabled = true;
 
         // 重新启用难度选择按钮
-        this.difficultyButtons.forEach(btn => btn.disabled = false);
+        this.difficultyToggle.disabled = false;
     }
 
     reset(): void {
@@ -454,19 +443,15 @@ export class TetrisGame {
         this.updateDifficultyDisplay();
         this.draw();
 
-        // 启用开始和难度选择
-        this.startBtn.disabled = false;
-        this.resetBtn.disabled = true;
+        // 恢复开始按钮
+        this.startBtn.textContent = '开始';
+        this.startBtn.classList.remove('warning');
+        this.startBtn.classList.add('primary');
         this.pauseBtn.disabled = true;
         this.pauseBtn.textContent = '暂停';
-        this.difficultyButtons.forEach(btn => {
-            btn.disabled = false;
-            if (btn.dataset.difficulty === currentDifficulty) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
+
+        // 重新启用难度选择按钮
+        this.difficultyToggle.disabled = false;
     }
 
     private setupEventListeners(): void {
@@ -563,20 +548,27 @@ export class TetrisGame {
             });
         }
 
-        this.startBtn.addEventListener('click', () => this.start());
-        this.resetBtn.addEventListener('click', () => this.reset());
+        // 开始/结束按钮（合并）
+        this.startBtn.addEventListener('click', () => {
+            if (this.startBtn.textContent === '开始') {
+                this.start();
+            } else {
+                this.reset();
+            }
+        });
+
         this.pauseBtn.addEventListener('click', () => this.pause());
+
         document.getElementById('restartBtn')!.addEventListener('click', () => {
             this.closeModal('gameOver');
             this.start();
         });
 
-        // 难度选择按钮事件
-        this.difficultyButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const difficulty = btn.dataset.difficulty as Difficulty;
-                this.setDifficulty(difficulty);
-            });
+        // 难度切换按钮事件
+        this.difficultyToggle.addEventListener('click', () => {
+            if (this.state.isGameOver || !this.gameInterval) {
+                this.toggleDifficulty();
+            }
         });
 
         // 帮助按钮事件

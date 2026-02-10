@@ -23,25 +23,22 @@
             </div>
 
             <div class="side-panel">
-            <!-- 得分和等级 + 控制按钮 -->
-            <div class="info-box compact stats-controls">
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <span class="stat-label">得分</span>
-                        <span class="stat-value score-display" id="score">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">等级</span>
-                        <span class="stat-value" id="level">1</span>
-                    </div>
+            <!-- 得分和等级（上下排列） -->
+            <div class="info-box compact stats-vertical">
+                <div class="stat-item-vertical">
+                    <span class="stat-label">得分</span>
+                    <span class="stat-value score-display" id="score">0</span>
                 </div>
+                <div class="stat-item-vertical">
+                    <span class="stat-label">等级</span>
+                    <span class="stat-value" id="level">1</span>
+                </div>
+            </div>
 
-                <!-- 控制按钮（紧凑排列） -->
-                <div class="control-buttons-compact">
-                    <button id="startBtn" class="game-btn-compact primary">开始</button>
-                    <button id="resetBtn" class="game-btn-compact warning" disabled>结束</button>
-                    <button id="pauseBtn" class="game-btn-compact secondary" disabled>暂停</button>
-                </div>
+            <!-- 控制按钮（合并开始/结束） -->
+            <div class="info-box compact control-buttons-vertical">
+                <button id="startBtn" class="game-btn-full primary">开始</button>
+                <button id="pauseBtn" class="game-btn-full secondary" disabled>暂停</button>
             </div>
 
             <!-- 下一个方块 -->
@@ -50,17 +47,12 @@
                 <canvas id="nextCanvas" width="120" height="120"></canvas>
             </div>
 
-            <!-- 难度选择 -->
+            <!-- 难度选择（单按钮切换） -->
             <div class="info-box compact difficulty-selector">
-                <h3>
-                    难度
-                    <span class="current-difficulty" id="difficultyName">普通</span>
-                </h3>
-                <div class="difficulty-buttons">
-                    <button class="difficulty-btn" data-difficulty="easy" title="简单 - 1.0x分数">简</button>
-                    <button class="difficulty-btn active" data-difficulty="normal" title="普通 - 1.5x分数">普</button>
-                    <button class="difficulty-btn" data-difficulty="hard" title="困难 - 2.0x分数">难</button>
-                </div>
+                <button id="difficultyToggle" class="difficulty-toggle" title="点击切换难度">
+                    <span class="difficulty-label">难度</span>
+                    <span class="difficulty-value" id="difficultyName">普通</span>
+                </button>
             </div>
         </div>
         </div>

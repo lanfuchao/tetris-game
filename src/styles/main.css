@@ -807,58 +807,58 @@ canvas {
     }
 
     canvas#gameCanvas {
-        width: 180px;
-        height: 360px;
+        width: 220px;
+        height: 440px;
         border-width: 2px;
     }
 
     .side-panel {
         flex: 1;
         width: auto;
-        min-width: 120px;
-        max-width: 150px;
-        gap: 6px;
+        min-width: 100px;
+        max-width: 120px;
+        gap: 5px;
     }
 
     .info-box {
-        padding: 6px;
+        padding: 5px;
     }
 
     .info-box h3 {
-        font-size: 11px;
-        margin-bottom: 4px;
+        font-size: 10px;
+        margin-bottom: 3px;
     }
 
     .stat-label {
-        font-size: 9px;
+        font-size: 8px;
     }
 
     .stat-value {
-        font-size: 14px;
+        font-size: 13px;
     }
 
     canvas#nextCanvas {
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
     }
 
     /* 全宽按钮 */
     .game-btn-full {
-        padding: 8px 6px;
-        font-size: 11px;
+        padding: 7px 4px;
+        font-size: 10px;
     }
 
     /* 难度切换按钮 */
     .difficulty-toggle {
-        padding: 8px 6px;
+        padding: 7px 4px;
     }
 
     .difficulty-label {
-        font-size: 9px;
+        font-size: 8px;
     }
 
     .difficulty-value {
-        font-size: 12px;
+        font-size: 11px;
     }
 
     /* 虚拟按键在手机上 */
@@ -979,29 +979,38 @@ canvas {
     }
 
     canvas#gameCanvas {
-        width: 160px;
-        height: 320px;
+        width: 200px;
+        height: 400px;
     }
 
     canvas#nextCanvas {
-        width: 70px;
-        height: 70px;
+        width: 45px;
+        height: 45px;
+    }
+
+    .side-panel {
+        min-width: 90px;
+        max-width: 110px;
+    }
+
+    .info-box {
+        padding: 4px;
     }
 
     .info-box h3 {
-        font-size: 12px;
+        font-size: 9px;
     }
 
     .stat-label {
-        font-size: 10px;
+        font-size: 7px;
     }
 
     .stat-value {
-        font-size: 14px;
+        font-size: 12px;
     }
 
     .score-display {
-        font-size: 16px;
+        font-size: 13px;
     }
 }
 

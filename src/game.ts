@@ -368,6 +368,9 @@ export class TetrisGame {
         gameOverTitle.textContent = '游戏结束';
         gameOverTitle.style.color = '#ff4757';
 
+        // 清空下一个方块显示
+        this.renderer.drawNextPiece(null);
+
         this.showModal('gameOver');
 
         // 恢复开始按钮
@@ -411,6 +414,9 @@ export class TetrisGame {
         gameOverTitle.textContent = '🎉 恭喜通关！';
         gameOverTitle.style.color = '#ffd700';
 
+        // 清空下一个方块显示
+        this.renderer.drawNextPiece(null);
+
         this.showModal('gameOver');
 
         // 恢复开始按钮
@@ -442,6 +448,9 @@ export class TetrisGame {
         this.updateLevel();
         this.updateDifficultyDisplay();
         this.draw();
+
+        // 清空下一个方块显示
+        this.renderer.drawNextPiece(null);
 
         // 恢复开始按钮
         this.startBtn.textContent = '开始';

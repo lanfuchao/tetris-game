@@ -438,6 +438,43 @@ canvas {
     color: #fff;
 }
 
+/* 方块类型切换按钮 */
+.block-type-toggle {
+    width: 100%;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.block-type-toggle:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.block-type-toggle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.block-type-label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.block-type-value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+}
+
 .help-icon {
     font-size: 18px;
     font-weight: bold;
@@ -858,6 +895,19 @@ canvas {
     }
 
     .difficulty-value {
+        font-size: 11px;
+    }
+
+    /* 方块类型切换按钮 */
+    .block-type-toggle {
+        padding: 7px 4px;
+    }
+
+    .block-type-label {
+        font-size: 8px;
+    }
+
+    .block-type-value {
         font-size: 11px;
     }
 

@@ -1,5 +1,5 @@
-import { CONFIG } from './config';
-import { Piece, GameState, Difficulty } from './types';
+import { CONFIG, getShapesForBlockType, getNormalBlockCount, SPECIAL_SINGLE_BLOCK } from './config';
+import { Piece, GameState, Difficulty, BlockType } from './types';
 import { AudioManager } from './utils/audio';
 import { Renderer } from './utils/renderer';
 import { getSpeed, getDifficultyConfig, calculateLevel, DIFFICULTY_CONFIGS } from './difficulty';
@@ -29,6 +29,7 @@ export class TetrisGame {
     private scoreElement: HTMLElement;
     private levelElement: HTMLElement;
     private difficultyNameElement: HTMLElement;
+    private blockTypeNameElement: HTMLElement;
     private finalScoreElement: HTMLElement;
     private finalLevelElement: HTMLElement;
     private finalDifficultyElement: HTMLElement;
@@ -36,6 +37,7 @@ export class TetrisGame {
     private startBtn: HTMLButtonElement;
     private pauseBtn: HTMLButtonElement;
     private difficultyToggle: HTMLButtonElement;
+    private blockTypeToggle: HTMLButtonElement;
 
     constructor() {
         const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
@@ -47,6 +49,7 @@ export class TetrisGame {
         this.scoreElement = document.getElementById('score')!;
         this.levelElement = document.getElementById('level')!;
         this.difficultyNameElement = document.getElementById('difficultyName')!;
+        this.blockTypeNameElement = document.getElementById('blockTypeName')!;
         this.finalScoreElement = document.getElementById('finalScore')!;
         this.finalLevelElement = document.getElementById('finalLevel')!;
         this.finalDifficultyElement = document.getElementById('finalDifficulty')!;
@@ -54,6 +57,7 @@ export class TetrisGame {
         this.startBtn = document.getElementById('startBtn') as HTMLButtonElement;
         this.pauseBtn = document.getElementById('pauseBtn') as HTMLButtonElement;
         this.difficultyToggle = document.getElementById('difficultyToggle') as HTMLButtonElement;
+        this.blockTypeToggle = document.getElementById('blockTypeToggle') as HTMLButtonElement;
 
         this.state = this.createInitialState();
         this.setupEventListeners();
@@ -71,15 +75,44 @@ export class TetrisGame {
             isGameOver: false,
             isDropping: false,
             difficulty: Difficulty.NORMAL,
-            isVictory: false
+            isVictory: false,
+            blockType: BlockType.TETROMINO  // 默认4格方块
         };
     }
 
     private createPiece(): Piece {
-        let specialProbability = DIFFICULTY_CONFIGS[this.state.difficulty].specialProbability;
+        // 根据方块类型和难度计算特殊方块概率
+        let specialProbability = 0;
+
+        if (this.state.blockType === BlockType.TROMINO) {
+            // 3格方块：不出现特殊方块
+            specialProbability = 0;
+        } else if (this.state.blockType === BlockType.PENTOMINO) {
+            // 5格方块：概率翻倍
+            specialProbability = DIFFICULTY_CONFIGS[this.state.difficulty].specialProbability * 2;
+        } else {
+            // 4格方块：正常概率
+            specialProbability = DIFFICULTY_CONFIGS[this.state.difficulty].specialProbability;
+        }
+
         const isSpecialPiece = Math.random() < specialProbability;
-        const type = isSpecialPiece ? 8 : Math.floor(Math.random() * 7) + 1;
-        const shape = CONFIG.shapes[type];
+
+        // 根据当前方块类型获取对应的形状集合
+        const shapes = getShapesForBlockType(this.state.blockType);
+        const normalBlockCount = getNormalBlockCount(this.state.blockType);
+
+        let type: number;
+        let shape: number[][];
+
+        if (isSpecialPiece) {
+            // 特殊单格方块使用固定的type 8
+            type = 8;
+            shape = SPECIAL_SINGLE_BLOCK;
+        } else {
+            // 从当前方块类型中随机选择
+            type = Math.floor(Math.random() * normalBlockCount) + 1;
+            shape = shapes[type];
+        }
 
         return {
             type,
@@ -89,8 +122,21 @@ export class TetrisGame {
         };
     }
 
+    // 获取方块的形状
+    private getShape(piece: Piece): number[][] {
+        if (piece.isSpecial) {
+            return SPECIAL_SINGLE_BLOCK;
+        }
+        return CONFIG.shapes[piece.type] || [];
+    }
+
     private collision(piece: Piece, offsetX: number = 0, offsetY: number = 0): boolean {
-        const shape = CONFIG.shapes[piece.type];
+        const shape = this.getShape(piece);
+
+        // 防止 shape 为空或 undefined
+        if (!shape || shape.length === 0) {
+            return true; // 如果没有有效形状，视为碰撞
+        }
 
         // 特殊方块的碰撞检测：可以穿透其他方块
         if (piece.isSpecial) {
@@ -169,7 +215,12 @@ export class TetrisGame {
         if (!this.state.currentPiece) return;
 
         const piece = this.state.currentPiece;
-        const shape = CONFIG.shapes[piece.type];
+        const shape = this.getShape(piece);
+
+        // 防止 shape 为空或 undefined
+        if (!shape || shape.length === 0) {
+            return;
+        }
 
         // 如果是特殊方块，找到它应该停留的位置（穿透到有方块的上方）
         if (piece.isSpecial) {
@@ -263,13 +314,20 @@ export class TetrisGame {
     rotate(): void {
         if (!this.state.currentPiece) return;
 
+        // 特殊方块不旋转
+        if (this.state.currentPiece.isSpecial) return;
+
         const oldType = this.state.currentPiece.type;
         const shape = CONFIG.shapes[oldType];
+
+        // 创建旋转后的形状
         const newShape = shape[0].map((_, i) => shape.map(row => row[i]).reverse());
 
+        // 临时修改 CONFIG.shapes 进行碰撞检测
         CONFIG.shapes[oldType] = newShape;
 
         if (this.collision(this.state.currentPiece)) {
+            // 恢复原始形状
             CONFIG.shapes[oldType] = shape;
         } else {
             this.audio.playRotateSound();
@@ -461,6 +519,39 @@ export class TetrisGame {
         this.updateDifficultyDisplay();
     }
 
+    setBlockType(blockType: BlockType): void {
+        this.state.blockType = blockType;
+        this.renderer.setBlockType(blockType);
+        // 更新 CONFIG.shapes 以使用新的方块类型
+        CONFIG.shapes = getShapesForBlockType(blockType);
+
+        // 清空当前和下一个方块，避免旧的 type 索引在新的形状集合中无效
+        this.state.currentPiece = null;
+        this.state.nextPiece = null;
+    }
+
+    getBlockType(): BlockType {
+        return this.state.blockType;
+    }
+
+    toggleBlockType(): void {
+        // 循环切换方块类型：3格 -> 4格 -> 5格 -> 3格
+        const blockTypes = [BlockType.TROMINO, BlockType.TETROMINO, BlockType.PENTOMINO];
+        const currentIndex = blockTypes.indexOf(this.state.blockType);
+        const nextIndex = (currentIndex + 1) % blockTypes.length;
+        this.setBlockType(blockTypes[nextIndex]);
+        this.updateBlockTypeDisplay();
+    }
+
+    private updateBlockTypeDisplay(): void {
+        const names = {
+            [BlockType.TROMINO]: '3格',
+            [BlockType.TETROMINO]: '4格',
+            [BlockType.PENTOMINO]: '5格'
+        };
+        this.blockTypeNameElement.textContent = names[this.state.blockType];
+    }
+
     private gameLoop(): void {
         if (!this.state.isPaused && !this.state.isGameOver) {
             this.moveDown();
@@ -487,12 +578,15 @@ export class TetrisGame {
         this.stopRotate();
 
         const currentDifficulty = this.state.difficulty;
+        const currentBlockType = this.state.blockType;
         this.state = this.createInitialState();
         this.state.difficulty = currentDifficulty;
+        this.state.blockType = currentBlockType;
 
         this.updateScore();
         this.updateLevel();
         this.updateDifficultyDisplay();
+        this.updateBlockTypeDisplay();
 
         this.state.currentPiece = this.createPiece();
         this.state.nextPiece = this.createPiece();
@@ -506,8 +600,9 @@ export class TetrisGame {
         this.startBtn.classList.add('warning');
         this.pauseBtn.disabled = false;
 
-        // 禁用难度选择按钮
+        // 禁用难度和方块类型选择按钮
         this.difficultyToggle.disabled = true;
+        this.blockTypeToggle.disabled = true;
 
         // 使用新的速度计算
         const speed = getSpeed(this.state.difficulty, this.state.level);
@@ -565,8 +660,9 @@ export class TetrisGame {
         this.startBtn.classList.add('primary');
         this.pauseBtn.disabled = true;
 
-        // 重新启用难度选择按钮
+        // 重新启用难度和方块类型选择按钮
         this.difficultyToggle.disabled = false;
+        this.blockTypeToggle.disabled = false;
     }
 
     private victory(): void {
@@ -611,8 +707,9 @@ export class TetrisGame {
         this.startBtn.classList.add('primary');
         this.pauseBtn.disabled = true;
 
-        // 重新启用难度选择按钮
+        // 重新启用难度和方块类型选择按钮
         this.difficultyToggle.disabled = false;
+        this.blockTypeToggle.disabled = false;
     }
 
     reset(): void {
@@ -627,15 +724,18 @@ export class TetrisGame {
         this.stopMoveRight();
         this.stopRotate();
 
-        // 保存当前难度，重置后恢复
+        // 保存当前难度和方块类型，重置后恢复
         const currentDifficulty = this.state.difficulty;
+        const currentBlockType = this.state.blockType;
 
         // 重置界面
         this.state = this.createInitialState();
         this.state.difficulty = currentDifficulty;
+        this.state.blockType = currentBlockType;
         this.updateScore();
         this.updateLevel();
         this.updateDifficultyDisplay();
+        this.updateBlockTypeDisplay();
         this.draw();
 
         // 清空下一个方块显示
@@ -648,8 +748,9 @@ export class TetrisGame {
         this.pauseBtn.disabled = true;
         this.pauseBtn.textContent = '暂停';
 
-        // 重新启用难度选择按钮
+        // 重新启用难度和方块类型选择按钮
         this.difficultyToggle.disabled = false;
+        this.blockTypeToggle.disabled = false;
     }
 
     private setupEventListeners(): void {
@@ -786,6 +887,13 @@ export class TetrisGame {
         this.difficultyToggle.addEventListener('click', () => {
             if (this.state.isGameOver || !this.gameInterval) {
                 this.toggleDifficulty();
+            }
+        });
+
+        // 方块类型切换按钮事件
+        this.blockTypeToggle.addEventListener('click', () => {
+            if (this.state.isGameOver || !this.gameInterval) {
+                this.toggleBlockType();
             }
         });
 

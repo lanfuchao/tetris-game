@@ -1,13 +1,26 @@
-import { CONFIG } from '../config';
-import { Piece } from '../types';
+import { CONFIG, SPECIAL_SINGLE_BLOCK } from '../config';
+import { Piece, BlockType } from '../types';
 
 export class Renderer {
     private ctx: CanvasRenderingContext2D;
     private nextCtx: CanvasRenderingContext2D;
+    private currentBlockType: BlockType;
 
     constructor(canvas: HTMLCanvasElement, nextCanvas: HTMLCanvasElement) {
         this.ctx = canvas.getContext('2d')!;
         this.nextCtx = nextCanvas.getContext('2d')!;
+        this.currentBlockType = BlockType.TETROMINO;
+    }
+
+    setBlockType(blockType: BlockType): void {
+        this.currentBlockType = blockType;
+    }
+
+    private getShape(piece: Piece): number[][] {
+        if (piece.isSpecial) {
+            return SPECIAL_SINGLE_BLOCK;
+        }
+        return CONFIG.shapes[piece.type] || [];
     }
 
     drawBlock(ctx: CanvasRenderingContext2D, x: number, y: number, color: string, isSpecial: boolean = false): void {
@@ -165,7 +178,12 @@ export class Renderer {
 
     drawPiece(piece: Piece, context?: CanvasRenderingContext2D, offsetX: number = 0, offsetY: number = 0): void {
         const ctx = context || this.ctx;
-        const shape = CONFIG.shapes[piece.type];
+        const shape = this.getShape(piece);
+
+        // 防止 shape 为 undefined 或空数组
+        if (!shape || shape.length === 0) {
+            return;
+        }
 
         for (let row = 0; row < shape.length; row++) {
             for (let col = 0; col < shape[row].length; col++) {
@@ -204,7 +222,11 @@ export class Renderer {
         }
 
         if (nextPiece) {
-            const shape = CONFIG.shapes[nextPiece.type];
+            const shape = this.getShape(nextPiece);
+            // 防止 shape 为 undefined 或空数组
+            if (!shape || shape.length === 0 || !shape[0]) {
+                return;
+            }
             const offsetX = (4 - shape[0].length) / 2;
             const offsetY = (4 - shape.length) / 2;
 

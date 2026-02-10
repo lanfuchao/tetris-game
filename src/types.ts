@@ -11,6 +11,12 @@ export enum Difficulty {
     HARD = 'hard'
 }
 
+export enum BlockType {
+    TROMINO = 'tromino',    // 3格
+    TETROMINO = 'tetromino', // 4格（标准）
+    PENTOMINO = 'pentomino'  // 5格
+}
+
 export interface GameState {
     board: number[][];
     currentPiece: Piece | null;
@@ -22,6 +28,7 @@ export interface GameState {
     isDropping: boolean;
     difficulty: Difficulty;
     isVictory: boolean; // 是否通关（50级）
+    blockType: BlockType; // 方块类型（3格/4格/5格）
 }
 
 export interface GameRecord {

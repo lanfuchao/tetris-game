@@ -53,9 +53,16 @@ body {
 
 .game-container {
     display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    padding: 20px;
+}
+
+.top-row {
+    display: flex;
     gap: 20px;
     align-items: flex-start;
-    padding: 20px;
 }
 
 .main-panel {
@@ -540,72 +547,65 @@ canvas {
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
-/* 虚拟按键 */
-.virtual-controls {
+/* 虚拟按键 - 底部一排 */
+.virtual-controls-bottom {
     display: none;
-    margin-top: 15px;
-    padding: 15px;
+    width: 100%;
+    padding: 10px;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 10px;
     user-select: none;
     -webkit-user-select: none;
-}
-
-/* 在平板和手机上显示虚拟按键（基于屏幕宽度） */
-@media (max-width: 1024px) {
-    .virtual-controls {
-        display: block;
-    }
-}
-
-/* 也支持触摸设备检测（双重保障） */
-@media (hover: none) and (pointer: coarse) {
-    .virtual-controls {
-        display: block;
-    }
-}
-
-.virtual-row {
-    display: flex;
+    gap: 8px;
     justify-content: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    flex-wrap: wrap;
 }
 
-.virtual-row:last-child {
-    margin-bottom: 0;
+/* 在平板和手机上显示虚拟按键 */
+@media (max-width: 1024px) {
+    .virtual-controls-bottom {
+        display: flex;
+    }
 }
 
-.virtual-btn {
-    width: 70px;
-    height: 70px;
+/* 也支持触摸设备检测 */
+@media (hover: none) and (pointer: coarse) {
+    .virtual-controls-bottom {
+        display: flex;
+    }
+}
+
+.virtual-btn-compact {
+    flex: 1;
+    min-width: 55px;
+    height: 50px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
     border: 2px solid rgba(255, 255, 255, 0.4);
-    border-radius: 12px;
+    border-radius: 10px;
     color: #fff;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: bold;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.1s;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
     touch-action: manipulation;
 }
 
-.virtual-btn.wide {
-    width: 220px;
-    font-size: 16px;
+.virtual-btn-compact.wide {
+    flex: 1.5;
+    font-size: 14px;
 }
 
-.virtual-btn:active {
+.virtual-btn-compact:active {
     transform: scale(0.95);
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-.virtual-btn span {
+.virtual-btn-compact span {
     pointer-events: none;
 }
 
@@ -672,25 +672,13 @@ canvas {
         width: 90%;
         max-width: 500px;
     }
-
-    /* 平板虚拟按键 */
-    .virtual-btn {
-        width: 75px;
-        height: 75px;
-        font-size: 30px;
-    }
-
-    .virtual-btn.wide {
-        width: 240px;
-        font-size: 17px;
-    }
 }
 
 /* 手机 */
 @media (max-width: 480px) {
     body {
         align-items: flex-start;
-        padding-top: 70px; /* 为固定按钮留出空间 */
+        padding-top: 60px;
     }
 
     .fixed-buttons {
@@ -706,56 +694,84 @@ canvas {
     }
 
     .game-container {
-        flex-direction: column;
-        align-items: center;
-        gap: 12px;
+        gap: 10px;
         padding: 10px;
         width: 100%;
     }
 
-    .main-panel {
-        padding: 12px;
+    .top-row {
         width: 100%;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    .main-panel {
+        padding: 8px;
+        flex-shrink: 0;
     }
 
     canvas#gameCanvas {
-        width: 240px;
-        height: 480px;
+        width: 180px;
+        height: 360px;
         border-width: 2px;
     }
 
     .side-panel {
-        width: 100%;
-        max-width: 280px;
+        flex: 1;
+        width: auto;
+        gap: 8px;
+    }
+
+    .info-box {
+        padding: 8px;
+    }
+
+    .info-box h3 {
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .stat-label {
+        font-size: 11px;
+    }
+
+    .stat-value {
+        font-size: 16px;
+    }
+
+    canvas#nextCanvas {
+        width: 80px;
+        height: 80px;
     }
 
     /* 紧凑按钮在手机上更小 */
     .game-btn-compact {
-        padding: 8px 4px;
+        padding: 6px 4px;
+        font-size: 11px;
+    }
+
+    .difficulty-btn {
+        width: 32px;
+        height: 32px;
         font-size: 12px;
     }
 
-    /* 虚拟按键调整 */
-    .virtual-controls {
-        padding: 10px;
-        margin-top: 10px;
+    /* 虚拟按键在手机上 */
+    .virtual-controls-bottom {
+        padding: 8px;
+        gap: 6px;
     }
 
-    .virtual-btn {
-        width: 60px;
-        height: 60px;
-        font-size: 24px;
+    .virtual-btn-compact {
+        min-width: 50px;
+        height: 45px;
+        font-size: 20px;
     }
 
-    .virtual-btn.wide {
-        width: 190px;
-        font-size: 14px;
+    .virtual-btn-compact.wide {
+        font-size: 13px;
     }
 
-    .virtual-row {
-        gap: 8px;
-        margin-bottom: 8px;
-    }
 
     canvas#nextCanvas {
         width: 90px;
@@ -858,25 +874,29 @@ canvas {
     }
 
     canvas#gameCanvas {
-        width: 210px;
-        height: 420px;
+        width: 160px;
+        height: 320px;
     }
 
     canvas#nextCanvas {
-        width: 80px;
-        height: 80px;
+        width: 70px;
+        height: 70px;
     }
 
-    .side-panel {
-        max-width: 240px;
+    .info-box h3 {
+        font-size: 12px;
+    }
+
+    .stat-label {
+        font-size: 10px;
     }
 
     .stat-value {
-        font-size: 18px;
+        font-size: 14px;
     }
 
     .score-display {
-        font-size: 20px;
+        font-size: 16px;
     }
 }
 

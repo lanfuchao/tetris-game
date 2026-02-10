@@ -17,36 +17,12 @@
     </div>
 
     <div class="game-container">
-        <div class="main-panel">
-            <canvas id="gameCanvas" width="300" height="600"></canvas>
-
-            <!-- 虚拟按键（仅触摸设备显示） -->
-            <div class="virtual-controls" id="virtualControls">
-                <div class="virtual-row">
-                    <button class="virtual-btn" data-action="rotate">
-                        <span>↻</span>
-                    </button>
-                </div>
-                <div class="virtual-row">
-                    <button class="virtual-btn" data-action="left">
-                        <span>←</span>
-                    </button>
-                    <button class="virtual-btn" data-action="down">
-                        <span>↓</span>
-                    </button>
-                    <button class="virtual-btn" data-action="right">
-                        <span>→</span>
-                    </button>
-                </div>
-                <div class="virtual-row">
-                    <button class="virtual-btn wide" data-action="drop">
-                        <span>快速落地</span>
-                    </button>
-                </div>
+        <div class="top-row">
+            <div class="main-panel">
+                <canvas id="gameCanvas" width="300" height="600"></canvas>
             </div>
-        </div>
 
-        <div class="side-panel">
+            <div class="side-panel">
             <!-- 得分和等级 + 控制按钮 -->
             <div class="info-box compact stats-controls">
                 <div class="stats-row">
@@ -86,6 +62,26 @@
                     <button class="difficulty-btn" data-difficulty="hard" title="困难 - 2.0x分数">难</button>
                 </div>
             </div>
+        </div>
+        </div>
+
+        <!-- 虚拟按键（仅触摸设备显示） -->
+        <div class="virtual-controls-bottom" id="virtualControls">
+            <button class="virtual-btn-compact" data-action="left">
+                <span>←</span>
+            </button>
+            <button class="virtual-btn-compact" data-action="rotate">
+                <span>↻</span>
+            </button>
+            <button class="virtual-btn-compact" data-action="down">
+                <span>↓</span>
+            </button>
+            <button class="virtual-btn-compact" data-action="right">
+                <span>→</span>
+            </button>
+            <button class="virtual-btn-compact wide" data-action="drop">
+                <span>落地</span>
+            </button>
         </div>
     </div>
 

@@ -62,7 +62,7 @@ export class TetrisGame {
     }
 
     private createPiece(): Piece {
-        const type = Math.floor(Math.random() * 7) + 1;
+        const type = Math.floor(Math.random() * (CONFIG.shapes.length - 1)) + 1;
         const shape = CONFIG.shapes[type];
         return {
             type,

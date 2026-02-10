@@ -1,7 +1,7 @@
 import { GameRecord, Difficulty } from '../types';
 
 const STORAGE_KEY = 'tetris_game_records';
-const MAX_RECORDS = 50; // 最多保存 50 条记录
+const MAX_RECORDS = 20; // 最多保存 20 条记录
 
 /**
  * 保存游戏记录

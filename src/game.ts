@@ -363,6 +363,18 @@ export class TetrisGame {
         this.stopFastDrop();
         this.audio.playGameOverSound();
 
+        // 计算游戏时长
+        const duration = Math.floor((Date.now() - this.gameStartTime) / 1000);
+
+        // 保存游戏记录（失败）
+        saveGameRecord({
+            difficulty: this.state.difficulty,
+            score: this.state.score,
+            level: this.state.level,
+            isVictory: false,
+            duration
+        });
+
         const config = getDifficultyConfig(this.state.difficulty);
         this.finalDifficultyElement.textContent = config.name;
         this.finalScoreElement.textContent = this.state.score.toString();
@@ -380,8 +392,6 @@ export class TetrisGame {
 
         // 重新启用难度选择按钮
         this.difficultyButtons.forEach(btn => btn.disabled = false);
-
-        // 游戏失败不保存记录
     }
 
     private victory(): void {

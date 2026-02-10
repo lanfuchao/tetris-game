@@ -14,6 +14,43 @@ body {
     color: #fff;
 }
 
+/* 固定右上角按钮 */
+.fixed-buttons {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.fixed-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.fixed-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.fixed-btn:active {
+    transform: scale(0.95);
+}
+
 .game-container {
     display: flex;
     gap: 20px;
@@ -223,6 +260,79 @@ canvas {
 .game-btn.large {
     padding: 15px 40px;
     font-size: 16px;
+}
+
+/* 得分和控制按钮组合区域 */
+.stats-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.stats-row {
+    display: flex;
+    gap: 15px;
+    justify-content: space-around;
+}
+
+/* 紧凑控制按钮（三个一排） */
+.control-buttons-compact {
+    display: flex;
+    gap: 6px;
+    justify-content: space-between;
+}
+
+.game-btn-compact {
+    flex: 1;
+    padding: 10px 6px;
+    font-size: 13px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: none;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.game-btn-compact.primary {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3);
+}
+
+.game-btn-compact.primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(76, 175, 80, 0.4);
+}
+
+.game-btn-compact.secondary {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.game-btn-compact.secondary:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.game-btn-compact.warning {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    box-shadow: 0 3px 8px rgba(255, 152, 0, 0.3);
+}
+
+.game-btn-compact.warning:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(255, 152, 0, 0.4);
+}
+
+.game-btn-compact:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
 }
 
 .help-icon {
@@ -580,7 +690,19 @@ canvas {
 @media (max-width: 480px) {
     body {
         align-items: flex-start;
-        padding-top: 10px;
+        padding-top: 70px; /* 为固定按钮留出空间 */
+    }
+
+    .fixed-buttons {
+        top: 10px;
+        right: 10px;
+        gap: 8px;
+    }
+
+    .fixed-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
     }
 
     .game-container {
@@ -588,16 +710,29 @@ canvas {
         align-items: center;
         gap: 12px;
         padding: 10px;
+        width: 100%;
     }
 
     .main-panel {
         padding: 12px;
+        width: 100%;
     }
 
     canvas#gameCanvas {
         width: 240px;
         height: 480px;
         border-width: 2px;
+    }
+
+    .side-panel {
+        width: 100%;
+        max-width: 280px;
+    }
+
+    /* 紧凑按钮在手机上更小 */
+    .game-btn-compact {
+        padding: 8px 4px;
+        font-size: 12px;
     }
 
     /* 虚拟按键调整 */
@@ -716,6 +851,12 @@ canvas {
 
 /* 超小屏幕 */
 @media (max-width: 360px) {
+    .fixed-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+
     canvas#gameCanvas {
         width: 210px;
         height: 420px;
@@ -724,6 +865,10 @@ canvas {
     canvas#nextCanvas {
         width: 80px;
         height: 80px;
+    }
+
+    .side-panel {
+        max-width: 240px;
     }
 
     .stat-value {

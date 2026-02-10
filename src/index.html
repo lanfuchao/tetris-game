@@ -6,6 +6,16 @@
     <title>俄罗斯方块</title>
 </head>
 <body>
+    <!-- 固定右上角按钮 -->
+    <div class="fixed-buttons">
+        <button id="recordsBtn" class="fixed-btn" title="游戏记录">
+            <span>📊</span>
+        </button>
+        <button id="helpBtn" class="fixed-btn" title="帮助">
+            <span>?</span>
+        </button>
+    </div>
+
     <div class="game-container">
         <div class="main-panel">
             <canvas id="gameCanvas" width="300" height="600"></canvas>
@@ -37,15 +47,24 @@
         </div>
 
         <div class="side-panel">
-            <!-- 得分和等级 -->
-            <div class="info-box compact">
-                <div class="stat-item">
-                    <span class="stat-label">得分</span>
-                    <span class="stat-value score-display" id="score">0</span>
+            <!-- 得分和等级 + 控制按钮 -->
+            <div class="info-box compact stats-controls">
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="stat-label">得分</span>
+                        <span class="stat-value score-display" id="score">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">等级</span>
+                        <span class="stat-value" id="level">1</span>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-label">等级</span>
-                    <span class="stat-value" id="level">1</span>
+
+                <!-- 控制按钮（紧凑排列） -->
+                <div class="control-buttons-compact">
+                    <button id="startBtn" class="game-btn-compact primary">开始</button>
+                    <button id="resetBtn" class="game-btn-compact warning" disabled>结束</button>
+                    <button id="pauseBtn" class="game-btn-compact secondary" disabled>暂停</button>
                 </div>
             </div>
 
@@ -66,19 +85,6 @@
                     <button class="difficulty-btn active" data-difficulty="normal" title="普通 - 1.5x分数">普</button>
                     <button class="difficulty-btn" data-difficulty="hard" title="困难 - 2.0x分数">难</button>
                 </div>
-            </div>
-
-            <!-- 控制按钮 -->
-            <div class="button-container">
-                <button id="startBtn" class="game-btn primary">开始游戏</button>
-                <button id="resetBtn" class="game-btn warning" disabled>重新开始</button>
-                <button id="pauseBtn" class="game-btn secondary" disabled>暂停</button>
-                <button id="recordsBtn" class="game-btn secondary">
-                    <span class="help-icon">📊</span>
-                </button>
-                <button id="helpBtn" class="game-btn secondary">
-                    <span class="help-icon">?</span>
-                </button>
             </div>
         </div>
     </div>

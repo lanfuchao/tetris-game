@@ -2,6 +2,7 @@ export interface Piece {
     type: number;
     x: number;
     y: number;
+    isSpecial?: boolean; // 是否是特殊穿透方块
 }
 
 export enum Difficulty {

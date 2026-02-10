@@ -76,18 +76,56 @@ export class TetrisGame {
     }
 
     private createPiece(): Piece {
-        const type = Math.floor(Math.random() * (CONFIG.shapes.length - 1)) + 1;
+        // 10% 概率生成特殊单格方块（type 8）
+        const isSpecialPiece = Math.random() < 0.1;
+        const type = isSpecialPiece ? 8 : Math.floor(Math.random() * 7) + 1;
         const shape = CONFIG.shapes[type];
+
         return {
             type,
             x: Math.floor((CONFIG.cols - shape[0].length) / 2),
-            y: 0
+            y: 0,
+            isSpecial: isSpecialPiece
         };
     }
 
     private collision(piece: Piece, offsetX: number = 0, offsetY: number = 0): boolean {
         const shape = CONFIG.shapes[piece.type];
 
+        // 特殊方块的碰撞检测：只检测边界和下方是否有空位
+        if (piece.isSpecial) {
+            for (let row = 0; row < shape.length; row++) {
+                for (let col = 0; col < shape[row].length; col++) {
+                    if (shape[row][col]) {
+                        const newX = piece.x + col + offsetX;
+                        const newY = piece.y + row + offsetY;
+
+                        // 检查左右边界
+                        if (newX < 0 || newX >= CONFIG.cols) {
+                            return true;
+                        }
+
+                        // 检查底部边界
+                        if (newY >= CONFIG.rows) {
+                            return true;
+                        }
+
+                        // 检查下方一格是否有方块（停止穿透）
+                        if (newY >= 0 && newY + 1 < CONFIG.rows && this.state.board[newY + 1][newX]) {
+                            return true;
+                        }
+
+                        // 检查是否到达底部
+                        if (newY === CONFIG.rows - 1) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        // 普通方块的碰撞检测
         for (let row = 0; row < shape.length; row++) {
             for (let col = 0; col < shape[row].length; col++) {
                 if (shape[row][col]) {
@@ -110,7 +148,33 @@ export class TetrisGame {
     private mergePiece(): void {
         if (!this.state.currentPiece) return;
 
-        const shape = CONFIG.shapes[this.state.currentPiece.type];
+        const piece = this.state.currentPiece;
+        const shape = CONFIG.shapes[piece.type];
+
+        // 如果是特殊方块，找到它应该停留的位置（穿透到有方块的上方）
+        if (piece.isSpecial) {
+            for (let row = 0; row < shape.length; row++) {
+                for (let col = 0; col < shape[row].length; col++) {
+                    if (shape[row][col]) {
+                        const x = piece.x + col;
+                        let y = piece.y + row;
+
+                        // 向下寻找第一个有方块的位置或底部
+                        while (y + 1 < CONFIG.rows && !this.state.board[y + 1][x]) {
+                            y++;
+                        }
+
+                        // 放置方块
+                        if (y >= 0 && y < CONFIG.rows) {
+                            this.state.board[y][x] = piece.type;
+                        }
+                    }
+                }
+            }
+            return;
+        }
+
+        // 普通方块的合并逻辑
         for (let row = 0; row < shape.length; row++) {
             for (let col = 0; col < shape[row].length; col++) {
                 if (shape[row][col]) {

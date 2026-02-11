@@ -64,6 +64,13 @@ export interface Translation {
     clearRecords: string;
     confirmClear: string;
 
+    // 虚拟按键
+    moveLeft: string;
+    moveRight: string;
+    rotate: string;
+    softDrop: string;
+    hardDrop: string;
+
     // 其他
     close: string;
     clickToSwitch: string;
@@ -127,6 +134,12 @@ export const translations: Record<Language, Translation> = {
         clearRecords: '清空记录',
         confirmClear: '确定要清空所有游戏记录吗？',
 
+        moveLeft: '左移',
+        moveRight: '右移',
+        rotate: '旋转',
+        softDrop: '加速下落',
+        hardDrop: '落地',
+
         close: '关闭',
         clickToSwitch: '点击切换',
         switchLanguage: '切换语言',
@@ -186,6 +199,12 @@ export const translations: Record<Language, Translation> = {
         noRecords: 'No records yet',
         clearRecords: 'Clear Records',
         confirmClear: 'Are you sure you want to clear all records?',
+
+        moveLeft: 'Move Left',
+        moveRight: 'Move Right',
+        rotate: 'Rotate',
+        softDrop: 'Soft Drop',
+        hardDrop: 'Hard Drop',
 
         close: 'Close',
         clickToSwitch: 'Click to switch',

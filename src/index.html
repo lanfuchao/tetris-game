@@ -8,10 +8,13 @@
 <body>
     <!-- 固定右上角按钮 -->
     <div class="fixed-buttons">
-        <button id="recordsBtn" class="fixed-btn" title="游戏记录">
+        <button id="recordsBtn" class="fixed-btn" title="游戏记录" data-i18n-title="records">
             <span>📊</span>
         </button>
-        <button id="helpBtn" class="fixed-btn" title="帮助">
+        <button id="languageBtn" class="fixed-btn" title="切换语言" data-i18n-title="switchLanguage">
+            <span id="languageIcon">🌐</span>
+        </button>
+        <button id="helpBtn" class="fixed-btn" title="帮助" data-i18n-title="help">
             <span>?</span>
         </button>
     </div>
@@ -49,7 +52,7 @@
 
             <!-- 难度选择（单按钮切换） -->
             <div class="info-box compact difficulty-selector">
-                <button id="difficultyToggle" class="difficulty-toggle" title="点击切换难度">
+                <button id="difficultyToggle" class="difficulty-toggle" title="点击切换难度" data-i18n-title="switchDifficulty">
                     <span class="difficulty-label">难度</span>
                     <span class="difficulty-value" id="difficultyName">普通</span>
                 </button>
@@ -57,7 +60,7 @@
 
             <!-- 方块类型选择（单按钮切换） -->
             <div class="info-box compact block-type-selector">
-                <button id="blockTypeToggle" class="block-type-toggle" title="点击切换方块类型">
+                <button id="blockTypeToggle" class="block-type-toggle" title="点击切换方块类型" data-i18n-title="switchBlockType">
                     <span class="block-type-label">方块</span>
                     <span class="block-type-value" id="blockTypeName">4格</span>
                 </button>
@@ -89,46 +92,46 @@
     <div class="modal" id="helpModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>游戏控制</h2>
+                <h2 id="helpTitle">游戏控制</h2>
                 <button class="modal-close" id="closeHelp">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="control-item">
                     <span class="control-key">←</span>
-                    <span class="control-desc">左移</span>
+                    <span class="control-desc" data-i18n="keyLeft">左移</span>
                 </div>
                 <div class="control-item">
                     <span class="control-key">→</span>
-                    <span class="control-desc">右移</span>
+                    <span class="control-desc" data-i18n="keyRight">右移</span>
                 </div>
                 <div class="control-item">
                     <span class="control-key">↑</span>
-                    <span class="control-desc">旋转</span>
+                    <span class="control-desc" data-i18n="keyUp">旋转</span>
                 </div>
                 <div class="control-item">
                     <span class="control-key">↓</span>
-                    <span class="control-desc">快速下落（按住）</span>
+                    <span class="control-desc" data-i18n="keyDown">快速下落（按住）</span>
                 </div>
                 <div class="control-item">
-                    <span class="control-key">空格</span>
-                    <span class="control-desc">瞬间落地</span>
+                    <span class="control-key" data-i18n="spaceKey">空格</span>
+                    <span class="control-desc" data-i18n="keySpace">瞬间落地</span>
                 </div>
                 <div class="control-item">
                     <span class="control-key">P</span>
-                    <span class="control-desc">暂停/继续</span>
+                    <span class="control-desc" data-i18n="keyP">暂停/继续</span>
                 </div>
             </div>
             <div class="modal-footer">
-                <h3>难度说明</h3>
+                <h3 id="helpDifficultyTitle">难度说明</h3>
                 <div class="difficulty-info">
                     <div class="diff-info-item">
-                        <strong>简单</strong> - 速度慢，1.0x分数，适合新手
+                        <strong data-i18n="easy">简单</strong> <span data-i18n="easyDesc">- 速度慢，1.0x分数，适合新手</span>
                     </div>
                     <div class="diff-info-item">
-                        <strong>普通</strong> - 速度中等，1.5x分数，标准体验
+                        <strong data-i18n="normal">普通</strong> <span data-i18n="normalDesc">- 速度中等，1.5x分数，标准体验</span>
                     </div>
                     <div class="diff-info-item">
-                        <strong>困难</strong> - 速度快，2.0x分数，极限挑战
+                        <strong data-i18n="hard">困难</strong> <span data-i18n="hardDesc">- 速度快，2.0x分数，极限挑战</span>
                     </div>
                 </div>
             </div>
@@ -140,25 +143,26 @@
         <div class="modal-content">
             <div class="modal-header game-over-header">
                 <h1 id="gameOverTitle">游戏结束</h1>
+                <button class="modal-close" id="closeGameOver">&times;</button>
             </div>
             <div class="modal-body game-over-body">
                 <div class="final-stats">
                     <div class="final-stat">
-                        <span class="final-label">难度</span>
+                        <span class="final-label" data-i18n="difficulty">难度</span>
                         <span class="final-value" id="finalDifficulty">普通</span>
                     </div>
                     <div class="final-stat highlight">
-                        <span class="final-label">得分</span>
+                        <span class="final-label" data-i18n="finalScore">得分</span>
                         <span class="final-value" id="finalScore">0</span>
                     </div>
                     <div class="final-stat">
-                        <span class="final-label">等级</span>
+                        <span class="final-label" data-i18n="finalLevel">等级</span>
                         <span class="final-value" id="finalLevel">1</span>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="restartBtn" class="game-btn primary large">重新开始</button>
+                <button id="restartBtn" class="game-btn primary large" data-i18n="start">重新开始</button>
             </div>
         </div>
     </div>
@@ -167,28 +171,28 @@
     <div class="modal" id="recordsModal">
         <div class="modal-content records-modal">
             <div class="modal-header">
-                <h2>游戏记录</h2>
+                <h2 id="recordsTitle">游戏记录</h2>
                 <button class="modal-close" id="closeRecords">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="records-stats">
                     <div class="record-stat-item">
-                        <span class="record-stat-label">通关次数</span>
+                        <span class="record-stat-label" data-i18n="victoryCount">通关次数</span>
                         <span class="record-stat-value" id="victoryCount">0</span>
                     </div>
                 </div>
                 <div class="records-tabs">
-                    <button class="records-tab active" data-difficulty="all">全部</button>
-                    <button class="records-tab" data-difficulty="easy">简单</button>
-                    <button class="records-tab" data-difficulty="normal">普通</button>
-                    <button class="records-tab" data-difficulty="hard">困难</button>
+                    <button class="records-tab active" data-difficulty="all" data-i18n="all">全部</button>
+                    <button class="records-tab" data-difficulty="easy" data-i18n="easy">简单</button>
+                    <button class="records-tab" data-difficulty="normal" data-i18n="normal">普通</button>
+                    <button class="records-tab" data-difficulty="hard" data-i18n="hard">困难</button>
                 </div>
                 <div class="records-list" id="recordsList">
-                    <div class="empty-records">暂无游戏记录</div>
+                    <div class="empty-records" data-i18n="noRecords">暂无游戏记录</div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="clearRecordsBtn" class="game-btn warning">清空记录</button>
+                <button id="clearRecordsBtn" class="game-btn warning" data-i18n="clearRecords">清空记录</button>
             </div>
         </div>
     </div>

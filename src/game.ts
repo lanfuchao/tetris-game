@@ -11,11 +11,13 @@ import {
     formatDuration,
     formatTimestamp
 } from './utils/records';
+import { I18n, Language, Translation } from './i18n';
 
 export class TetrisGame {
     private state: GameState;
     private renderer: Renderer;
     private audio: AudioManager;
+    private i18n: I18n;
     private gameInterval: number | null = null;
     private dropInterval: number | null = null;
     private moveLeftInterval: number | null = null;
@@ -45,6 +47,7 @@ export class TetrisGame {
 
         this.renderer = new Renderer(canvas, nextCanvas);
         this.audio = new AudioManager();
+        this.i18n = new I18n();
 
         this.scoreElement = document.getElementById('score')!;
         this.levelElement = document.getElementById('level')!;
@@ -61,6 +64,7 @@ export class TetrisGame {
 
         this.state = this.createInitialState();
         this.setupEventListeners();
+        this.updateAllTexts();
         this.draw();
     }
 
@@ -505,11 +509,6 @@ export class TetrisGame {
         }
     }
 
-    private updateDifficultyDisplay(): void {
-        const config = getDifficultyConfig(this.state.difficulty);
-        this.difficultyNameElement.textContent = config.name;
-    }
-
     toggleDifficulty(): void {
         // 循环切换难度：简单 -> 普通 -> 困难 -> 简单
         const difficulties = [Difficulty.EASY, Difficulty.NORMAL, Difficulty.HARD];
@@ -544,12 +543,91 @@ export class TetrisGame {
     }
 
     private updateBlockTypeDisplay(): void {
-        const names = {
-            [BlockType.TROMINO]: '3格',
-            [BlockType.TETROMINO]: '4格',
-            [BlockType.PENTOMINO]: '5格'
-        };
-        this.blockTypeNameElement.textContent = names[this.state.blockType];
+        this.blockTypeNameElement.textContent = this.i18n.getBlockTypeName(this.state.blockType);
+    }
+
+    private updateDifficultyDisplay(): void {
+        this.difficultyNameElement.textContent = this.i18n.getDifficultyName(this.state.difficulty);
+    }
+
+    toggleLanguage(): void {
+        this.i18n.toggleLanguage();
+        this.updateAllTexts();
+    }
+
+    private updateAllTexts(): void {
+        // 更新页面标题
+        document.title = this.i18n.t('gameTitle');
+
+        // 更新按钮文本
+        if (!this.state.isGameOver && this.gameInterval) {
+            this.startBtn.textContent = this.i18n.t('end');
+        } else {
+            this.startBtn.textContent = this.i18n.t('start');
+        }
+
+        if (this.state.isPaused) {
+            this.pauseBtn.textContent = this.i18n.t('resume');
+        } else {
+            this.pauseBtn.textContent = this.i18n.t('pause');
+        }
+
+        // 更新标签文本
+        const scoreLabel = document.querySelector('.stat-label');
+        if (scoreLabel) scoreLabel.textContent = this.i18n.t('score');
+
+        const levelLabels = document.querySelectorAll('.stat-label');
+        if (levelLabels[1]) levelLabels[1].textContent = this.i18n.t('level');
+
+        const difficultyLabel = document.querySelector('.difficulty-label');
+        if (difficultyLabel) difficultyLabel.textContent = this.i18n.t('difficulty');
+
+        const blockTypeLabel = document.querySelector('.block-type-label');
+        if (blockTypeLabel) blockTypeLabel.textContent = this.i18n.t('blockType');
+
+        const nextTitle = document.querySelector('.info-box h3');
+        if (nextTitle) nextTitle.textContent = this.i18n.t('next');
+
+        // 更新难度和方块类型显示
+        this.updateDifficultyDisplay();
+        this.updateBlockTypeDisplay();
+
+        // 更新提示文本
+        this.difficultyToggle.title = this.i18n.t('clickToSwitch') + ' ' + this.i18n.t('difficulty');
+        this.blockTypeToggle.title = this.i18n.t('clickToSwitch') + ' ' + this.i18n.t('blockType');
+
+        // 更新弹窗文本
+        this.updateModalTexts();
+    }
+
+    private updateModalTexts(): void {
+        // 使用 data-i18n 属性批量更新所有带翻译标记的元素
+        const elementsToTranslate = document.querySelectorAll('[data-i18n]');
+        elementsToTranslate.forEach((element) => {
+            const key = element.getAttribute('data-i18n') as keyof Translation;
+            if (key && this.i18n.t(key)) {
+                element.textContent = this.i18n.t(key);
+            }
+        });
+
+        // 使用 data-i18n-title 属性批量更新所有带 title 的元素
+        const elementsWithTitle = document.querySelectorAll('[data-i18n-title]');
+        elementsWithTitle.forEach((element) => {
+            const key = element.getAttribute('data-i18n-title') as keyof Translation;
+            if (key && this.i18n.t(key)) {
+                element.setAttribute('title', this.i18n.t(key));
+            }
+        });
+
+        // 更新特定元素
+        const helpTitle = document.getElementById('helpTitle');
+        if (helpTitle) helpTitle.textContent = this.i18n.t('helpTitle');
+
+        const helpDifficultyTitle = document.getElementById('helpDifficultyTitle');
+        if (helpDifficultyTitle) helpDifficultyTitle.textContent = this.i18n.t('helpDifficultyTitle');
+
+        const recordsTitle = document.getElementById('recordsTitle');
+        if (recordsTitle) recordsTitle.textContent = this.i18n.t('recordsTitle');
     }
 
     private gameLoop(): void {
@@ -595,7 +673,7 @@ export class TetrisGame {
         this.closeModal('gameOver');
 
         // 开始按钮变为结束按钮
-        this.startBtn.textContent = '结束';
+        this.startBtn.textContent = this.i18n.t('end');
         this.startBtn.classList.remove('primary');
         this.startBtn.classList.add('warning');
         this.pauseBtn.disabled = false;
@@ -616,7 +694,7 @@ export class TetrisGame {
 
     pause(): void {
         this.state.isPaused = !this.state.isPaused;
-        this.pauseBtn.textContent = this.state.isPaused ? '继续' : '暂停';
+        this.pauseBtn.textContent = this.state.isPaused ? this.i18n.t('resume') : this.i18n.t('pause');
     }
 
     private gameOver(): void {
@@ -639,14 +717,13 @@ export class TetrisGame {
             duration
         });
 
-        const config = getDifficultyConfig(this.state.difficulty);
-        this.finalDifficultyElement.textContent = config.name;
+        this.finalDifficultyElement.textContent = this.i18n.getDifficultyName(this.state.difficulty);
         this.finalScoreElement.textContent = this.state.score.toString();
         this.finalLevelElement.textContent = this.state.level.toString();
 
         // 显示失败信息
         const gameOverTitle = document.getElementById('gameOverTitle')!;
-        gameOverTitle.textContent = '游戏结束';
+        gameOverTitle.textContent = this.i18n.t('gameOver');
         gameOverTitle.style.color = '#ff4757';
 
         // 清空下一个方块显示
@@ -655,7 +732,7 @@ export class TetrisGame {
         this.showModal('gameOver');
 
         // 恢复开始按钮
-        this.startBtn.textContent = '开始';
+        this.startBtn.textContent = this.i18n.t('start');
         this.startBtn.classList.remove('warning');
         this.startBtn.classList.add('primary');
         this.pauseBtn.disabled = true;
@@ -686,14 +763,13 @@ export class TetrisGame {
             duration
         });
 
-        const config = getDifficultyConfig(this.state.difficulty);
-        this.finalDifficultyElement.textContent = config.name;
+        this.finalDifficultyElement.textContent = this.i18n.getDifficultyName(this.state.difficulty);
         this.finalScoreElement.textContent = this.state.score.toString();
         this.finalLevelElement.textContent = this.state.level.toString();
 
         // 显示通关信息
         const gameOverTitle = document.getElementById('gameOverTitle')!;
-        gameOverTitle.textContent = '🎉 恭喜通关！';
+        gameOverTitle.textContent = this.i18n.t('victory');
         gameOverTitle.style.color = '#ffd700';
 
         // 清空下一个方块显示
@@ -702,7 +778,7 @@ export class TetrisGame {
         this.showModal('gameOver');
 
         // 恢复开始按钮
-        this.startBtn.textContent = '开始';
+        this.startBtn.textContent = this.i18n.t('start');
         this.startBtn.classList.remove('warning');
         this.startBtn.classList.add('primary');
         this.pauseBtn.disabled = true;
@@ -742,11 +818,11 @@ export class TetrisGame {
         this.renderer.drawNextPiece(null);
 
         // 恢复开始按钮
-        this.startBtn.textContent = '开始';
+        this.startBtn.textContent = this.i18n.t('start');
         this.startBtn.classList.remove('warning');
         this.startBtn.classList.add('primary');
         this.pauseBtn.disabled = true;
-        this.pauseBtn.textContent = '暂停';
+        this.pauseBtn.textContent = this.i18n.t('pause');
 
         // 重新启用难度和方块类型选择按钮
         this.difficultyToggle.disabled = false;
@@ -869,7 +945,7 @@ export class TetrisGame {
 
         // 开始/结束按钮（合并）
         this.startBtn.addEventListener('click', () => {
-            if (this.startBtn.textContent === '开始') {
+            if (this.state.isGameOver || !this.gameInterval) {
                 this.start();
             } else {
                 this.reset();
@@ -881,6 +957,10 @@ export class TetrisGame {
         document.getElementById('restartBtn')!.addEventListener('click', () => {
             this.closeModal('gameOver');
             this.start();
+        });
+
+        document.getElementById('closeGameOver')!.addEventListener('click', () => {
+            this.closeModal('gameOver');
         });
 
         // 难度切换按钮事件
@@ -895,6 +975,11 @@ export class TetrisGame {
             if (this.state.isGameOver || !this.gameInterval) {
                 this.toggleBlockType();
             }
+        });
+
+        // 语言切换按钮事件
+        document.getElementById('languageBtn')!.addEventListener('click', () => {
+            this.toggleLanguage();
         });
 
         // 帮助按钮事件
@@ -916,7 +1001,7 @@ export class TetrisGame {
         });
 
         document.getElementById('clearRecordsBtn')!.addEventListener('click', () => {
-            if (confirm('确定要清空所有游戏记录吗？')) {
+            if (confirm(this.i18n.t('confirmClear'))) {
                 this.clearRecords();
             }
         });
@@ -982,14 +1067,14 @@ export class TetrisGame {
 
         // 渲染记录列表
         if (filteredRecords.length === 0) {
-            recordsList.innerHTML = '<div class="empty-records">暂无游戏记录</div>';
+            recordsList.innerHTML = `<div class="empty-records">${this.i18n.t('noRecords')}</div>`;
             return;
         }
 
         recordsList.innerHTML = filteredRecords.map(record => {
-            const config = getDifficultyConfig(record.difficulty);
+            const difficultyName = this.i18n.getDifficultyName(record.difficulty);
             const statusClass = record.isVictory ? 'victory' : 'defeat';
-            const statusText = record.isVictory ? '🎉 通关' : '❌ 失败';
+            const statusText = record.isVictory ? '🎉 ' + this.i18n.t('victory') : '❌ ' + this.i18n.t('gameOver');
 
             return `
                 <div class="record-item ${statusClass}">
@@ -999,19 +1084,19 @@ export class TetrisGame {
                     </div>
                     <div class="record-details">
                         <div class="record-detail">
-                            <span class="record-detail-label">难度</span>
-                            <span class="record-detail-value">${config.name}</span>
+                            <span class="record-detail-label">${this.i18n.t('difficulty')}</span>
+                            <span class="record-detail-value">${difficultyName}</span>
                         </div>
                         <div class="record-detail">
-                            <span class="record-detail-label">分数</span>
+                            <span class="record-detail-label">${this.i18n.t('score')}</span>
                             <span class="record-detail-value">${record.score}</span>
                         </div>
                         <div class="record-detail">
-                            <span class="record-detail-label">等级</span>
+                            <span class="record-detail-label">${this.i18n.t('level')}</span>
                             <span class="record-detail-value">${record.level}</span>
                         </div>
                         <div class="record-detail">
-                            <span class="record-detail-label">时长</span>
+                            <span class="record-detail-label">${this.i18n.t('duration')}</span>
                             <span class="record-detail-value">${formatDuration(record.duration)}</span>
                         </div>
                     </div>

@@ -34,6 +34,7 @@ export interface GameState {
 export interface GameRecord {
     id: string;
     difficulty: Difficulty;
+    blockType: BlockType; // 方块类型
     score: number;
     level: number;
     isVictory: boolean; // 是否通关

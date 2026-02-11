@@ -711,6 +711,7 @@ export class TetrisGame {
         // 保存游戏记录（失败）
         saveGameRecord({
             difficulty: this.state.difficulty,
+            blockType: this.state.blockType,
             score: this.state.score,
             level: this.state.level,
             isVictory: false,
@@ -757,6 +758,7 @@ export class TetrisGame {
         // 保存游戏记录（通关）
         saveGameRecord({
             difficulty: this.state.difficulty,
+            blockType: this.state.blockType,
             score: this.state.score,
             level: this.state.level,
             isVictory: true,
@@ -1073,6 +1075,7 @@ export class TetrisGame {
 
         recordsList.innerHTML = filteredRecords.map(record => {
             const difficultyName = this.i18n.getDifficultyName(record.difficulty);
+            const blockTypeName = this.i18n.getBlockTypeName(record.blockType || BlockType.TETROMINO); // 兼容旧记录
             const statusClass = record.isVictory ? 'victory' : 'defeat';
             const statusText = record.isVictory ? '🎉 ' + this.i18n.t('victory') : '❌ ' + this.i18n.t('gameOver');
 
@@ -1086,6 +1089,10 @@ export class TetrisGame {
                         <div class="record-detail">
                             <span class="record-detail-label">${this.i18n.t('difficulty')}</span>
                             <span class="record-detail-value">${difficultyName}</span>
+                        </div>
+                        <div class="record-detail">
+                            <span class="record-detail-label">${this.i18n.t('blockType')}</span>
+                            <span class="record-detail-value">${blockTypeName}</span>
                         </div>
                         <div class="record-detail">
                             <span class="record-detail-label">${this.i18n.t('score')}</span>
